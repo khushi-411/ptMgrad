@@ -2,6 +2,7 @@
 
 #include "engine.h"
 
+
 namespace ptMgrad {
 
 template <typename T>
@@ -318,5 +319,105 @@ public:
     }
 
 };
+
+template <class T>
+inline
+ptMgrad::complex<T>
+operator+(const ptMgrad::complex<T>& _x, const ptMgrad::complex<T>& _y) {
+    ptMgrad::complex<T> __k =  _x;
+    __k += _y;
+    return __k;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+operator+(const ptMgrad::complex<T>& _x, const T& _y) {
+    ptMgrad::complex<T> __k =  _x;
+    __k += _y;
+    return __k;
+}
+
+
+template <class T>
+inline
+ptMgrad::complex<T>
+operator+(const T& _x, const ptMgrad::complex<T>& _y) {
+    ptMgrad::complex<T> __k =  _y;
+    __k += _x;
+    return __k;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+operator-(const ptMgrad::complex<T>& _x, const ptMgrad::complex<T>& _y) {
+    ptMgrad::complex<T> __k =  _x;
+    __k -= _y;
+    return __k;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+operator-(const ptMgrad::complex<T>& _x, const T& _y) {
+    ptMgrad::complex<T> __k =  _x;
+    __k -= _y;
+    return __k;
+}
+
+
+template <class T>
+inline
+ptMgrad::complex<T>
+operator-(const T& _x, const ptMgrad::complex<T>& _y) {
+    ptMgrad::complex<T> __k =  _y;
+    __k -= _x;
+    return __k;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+add(const ptMgrad::complex<T>& _x, const ptMgrad::complex<T>& _y) {
+    return _x + _y;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+add(const ptMgrad::complex<T>& _x, const T& _y) {
+    return _x + _y;
+}
+
+
+template <class T>
+inline
+ptMgrad::complex<T>
+add(const T& _x, const ptMgrad::complex<T>& _y) {
+    return _x + _y;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+sub(const ptMgrad::complex<T>& _x, const ptMgrad::complex<T>& _y) {
+    return _x - _y;
+}
+
+template <class T>
+inline
+ptMgrad::complex<T>
+sub(const ptMgrad::complex<T>& _x, const T& _y) {
+    return _x - _y;
+}
+
+
+template <class T>
+inline
+ptMgrad::complex<T>
+sub(const T& _x, const ptMgrad::complex<T>& _y) {
+    return _x - _y;
+}
 
 }  // namespace ptMgrad
