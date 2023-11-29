@@ -11,7 +11,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(PTMGRAD_SRCS)
 list(APPEND PTMGRAD_SRCS
   ${PTMGRAD_SRCS_DIR}/engine.cpp
-  ${PTMGRAD_SRCS_DIR}/complex.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PTMGRAD_SRCS})

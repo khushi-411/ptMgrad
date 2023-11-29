@@ -1,2 +1,7 @@
 # build directory
 build
+
+# ignore generated files
+*
+*.o
+*.obj
