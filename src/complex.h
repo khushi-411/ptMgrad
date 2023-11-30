@@ -119,8 +119,8 @@ template<>
 class complex<float> {
 private:
     typedef float U;
-    U __re_;
-    U __im_;
+    float __re_;
+    float __im_;
 public:
 
     constexpr
@@ -223,8 +223,8 @@ template<>
 class complex<double> {
 private:
     typedef double U;
-    U __re_;
-    U __im_;
+    double __re_;
+    double __im_;
 public:
     constexpr
     complex(const double& __re = U(), const double& __im = U()): __re_(__re), __im_(__im) {}
