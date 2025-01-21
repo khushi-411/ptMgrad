@@ -1,45 +1,66 @@
+// write a tiny autograd engine in C++
+// implement backpropagation over a dynamically
+// built DAG and a small neural network
+
+// create a Value class to store a single scalar
+// value and its gradient
+
 #pragma once
+
+#include <vector>
 #include <iostream>
+#include <set>
+#include <functional>
 
 #include "complex.h"
 
 
 namespace ptMgrad {
 
-// TODO: do we need different overloads like class Value<float>, class Value<double> etc?
+
 template <typename T>
 class Value {
 private:
-    typedef T U;
-    U x;
-    U y;
+    T x;
+    T y;
+    mutable T grad = 0.0;
+    std::vector<Value<T>*> children;
+    std::function<void()> backward_fn = []() {};
+
 public:
-    Value() {};
-
-    // TODO: cannot use const directly in func param
-    template <class _X> constexpr
-    Value(const Value<_X>& _x): x(_x) {};
+    // default constructor
+    Value() : x(0), y(0) {}
 
     template <class _X> constexpr
-    Value(const Value<_X>& _x, const Value<_X>& _y): x(_x), y(_y) {}
+    Value(const Value<_X>& _x) : x(_x) {}
+
+    template <class _X> constexpr
+    Value(const Value<_X>& _x, const Value<_X>& _y) : x(_x), y(_y) {}
 
     // for scalar values
     template <class _X> constexpr
-    Value(const _X& _x): x(_x) {}
+    Value(const _X& _x) : x(_x) {}
 
     template <class _X> constexpr
-    Value(const _X& _x, const _X& _y): x(_x), y(_y) {}
+    Value(const _X& _x, const _X& _y) : x(_x), y(_y) {}
+
+    void add_child(const Value<T>* child) {
+        children.push_back(const_cast<Value<T>*>(child));
+    }
+
+    void add_grad(const T& _grad) const {
+        grad += _grad;
+    }
 
     template <class _X> constexpr
-    Value& operator= (const Value<_X>& _x) {
-        // PS: "this" is not mandatory, i guess
-        this->x = _x;
+    Value& operator=(const Value<_X>& x) {
+        this->x = x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator= (const _X& _x) {
-        this->x = _x;
+    Value& operator=(const _X& x) {
+        this->x = x;
         return *this;
     }
 
@@ -50,6 +71,22 @@ public:
     T dataY() const {
         return y;
     }
+
+    T gradX() const {
+        return grad;
+    }
+
+    T gradY() const {
+        return grad;
+    }
+
+    T get_grad() const {
+        return grad;
+    }
+
+    // void add_grad(const T& _grad) const {
+    //     grad += _grad;
+    // }
 
     template <class _X> constexpr
     Value& operator- () {
@@ -62,51 +99,79 @@ public:
         return x || y;
     }
 
+    // add backward function implementation
+    void backward() {
+        // topological order all of the children in the graph
+        std::vector<Value<T>*> topo;
+        std::set<Value<T>*> visited;
+
+        std::function<void(Value<T>*)> build_topo = [&](Value<T>* v) {
+            if (visited.find(v) == visited.end()) {
+                visited.insert(v);
+                for (auto* child : v->children) {
+                    build_topo(child);
+                }
+                topo.push_back(v);
+            }
+        };
+        build_topo(this);
+
+        // go one variable at a time and apply the chain rule to get its gradient
+        this->grad = 1.0;
+        for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
+            (*it)->backward_fn();
+        }
+    }
+
+    void set_backward(const std::function<void()>& fn) {
+        backward_fn = fn;
+    }
+
     template <class _X> constexpr
-    Value& operator+= (const Value <_X>& _x) {
-        this->x += _x.x;  // TODO: remove ".x"
+    Value& operator+= (const Value<_X>& x) {
+        this->x += x.x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator+= (const _X& _x) {
-        this->x += _x;
+    Value& operator+= (const _X& x) {
+        this->x += x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator-=(const Value<_X>& _x) {
-        this->x -= _x.x;
+    Value& operator-= (const Value<_X>& x) {
+        this->x -= x.x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator-=(const _X& _x) {
-        this->x -= _x;
+    Value& operator-= (const _X& x) {
+        this->x -= x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator*=(const Value<_X>& _x) {
-        this->x *= _x.x;
+    Value& operator*= (const Value<_X>& x) {
+        this->x *= x.x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator*=(const _X& _x) {
-        this->x *= _x;
+    Value& operator*= (const _X& x) {
+        this->x *= x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator/=(const Value<_X>& _x) {
-        this->x /= _x.x;
+    Value& operator/= (const Value<_X>& x) {
+        this->x /= x.x;
         return *this;
     }
 
     template <class _X> constexpr
-    Value& operator/=(const _X& _x) {
-        this->x /= _x;
+    Value& operator/= (const _X& x) {
+        this->x /= x;
         return *this;
     }
 
@@ -122,95 +187,64 @@ public:
         return x < _x;
     }*/
 
-    friend std::ostream& operator<<(std::ostream& os, const Value& _x) {
+    friend std::ostream& operator<< (std::ostream& os, const Value& _x) {
         os << _x.x;
         return os;
     }
 };
 
-// We'll need these if we remove bool operator from Value class
-// it might return bool if we remove this
-template <class T>
-inline
-Value <T>
-operator+(const Value<T>& _x, const Value<T>& _y) {
-    Value<T> __k = _x;
-    __k += _y;
-    return __k;
-}
+
+//template <typename T>
+//T add_grad(const T& v, const T& _grad) {
+//    T grad = 0.0;
+//    grad = v + _grad;
+//    return grad;
+//}
+
 
 template <class T>
 inline
 Value <T>
-operator+(const T& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k += _y;
-    return __k;
-}
+operator+ (const Value<T>& x, const Value<T>& y) {
+    Value<T> __k = x;
+    __k += y;
+    
+    __k.add_child(&x);
+    __k.add_child(&y);
 
-template <class T>
-inline
-Value <T>
-operator+(const Value<T>& _x, const T&  _y) {
-    Value<T> __k = _x;
-    __k += _y;
-    return __k;
-}
+    __k.set_backward([&x, &y, &__k]() {
+        // x.grad = add_grad(x.get_grad(), __k.get_grad());
+        // y.grad = add_grad(y.get_grad(), __k.get_grad());
+        x.add_grad(__k.get_grad());
+        y.add_grad(__k.get_grad());
+    });
 
-/*
-template <class T>
-inline
-Value<ptMgrad::complex<T>>
-operator+(const Value<ptMgrad::complex<T>>& _x, const Value<ptMgrad::complex<T>>& _y) {
-    Value<ptMgrad::complex<T>> __k =  _x;
-    __k += _y;
-    return __k;
-}
-
-template <class T>
-inline
-Value<ptMgrad::complex<T>>
-operator+(const Value<ptMgrad::complex<T>>& _x, const T& _y) {
-    Value<ptMgrad::complex<T>> __k =  _x;
-    __k += _y;
-    return __k;
-}
-
-
-template <class T>
-inline
-Value<ptMgrad::complex<T>>
-operator+(const T& _x, const Value<ptMgrad::complex<T>>& _y) {
-    Value<ptMgrad::complex<T>> __k =  _y;
-    __k += _x;
-    return __k;
-}
-*/
-
-template <class T>
-inline
-Value <T>
-operator-(const Value<T>& _x, const Value<T>& _y) {
-    Value<T> __k = _x;
-    __k -= _y;
     return __k;
 }
 
 template <class T>
 inline
 Value <T>
-operator-(const T& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k -= _y;
+operator+ (const Value<T>& x, const T& y) {
+    Value<T> __k = x;
+    __k += y;
+
+    __k.add_child(&x);
+
+    __k.set_backward([&x, &y, &__k]() {
+        // x.grad = add_grad(x.get_grad(), __k.get_grad());
+        x.add_grad(__k.get_grad());
+    });
+
     return __k;
 }
 
 template <class T>
 inline
 Value <T>
-operator-(const Value<T>& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k -= _y;
+operator+ (const T& x, const T& y) {
+    Value<T> __k = x;
+    __k += y;
     return __k;
 }
 
@@ -218,27 +252,50 @@ operator-(const Value<T>& _x, const T& _y) {
 template <class T>
 inline
 Value <T>
-operator*(const Value<T>& _x, const Value<T>& _y) {
-    Value<T> __k = _x;
-    __k *= _y;
+operator+ (const Value<complex<T>>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k += y;
+
+    __k.add_child(&x);
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+        y.add_grad(__k.get_grad());
+    });
+
     return __k;
 }
 
 template <class T>
 inline
 Value <T>
-operator*(const T& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k *= _y;
+operator+ (const Value<complex<T>>& x, const complex<T>& y) {
+    Value<complex<T>> __k = x;
+    __k += y;
+
+    __k.add_child(&x);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+    });
+
     return __k;
 }
 
 template <class T>
 inline
 Value <T>
-operator*(const Value<T>& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k *= _y;
+operator+ (const complex<T>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k += y;
+
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        y.add_grad(__k.get_grad());
+    });
+
     return __k;
 }
 
@@ -246,27 +303,246 @@ operator*(const Value<T>& _x, const T& _y) {
 template <class T>
 inline
 Value <T>
-operator/(const Value<T>& _x, const Value<T>& _y) {
-    Value<T> __k = _x;
-    __k /= _y;
+operator- (const Value<T>& x, const Value<T>& y) {
+    Value<T> __k = x;
+    __k -= y;
+
+    __k.add_child(&x);
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+        y.add_grad(__k.get_grad());
+    });
+
     return __k;
 }
 
 template <class T>
 inline
 Value <T>
-operator/(const T& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k /= _y;
+operator- (const Value<T>& x, const T& y) {
+    Value<T> __k = x;
+    __k -= y;
+
+    __k.add_child(&x);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+    });
+
     return __k;
 }
 
 template <class T>
 inline
 Value <T>
-operator/(const Value<T>& _x, const T& _y) {
-    Value<T> __k = _x;
-    __k /= _y;
+operator- (const T& x, const T& y) {
+    Value<T> __k = x;
+    __k -= y;
+    return __k;
+}
+
+
+template <class T>
+inline
+Value <T>
+operator- (const Value<complex<T>>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k -= y;
+
+    __k.add_child(&x);
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+        y.add_grad(__k.get_grad());
+    });
+
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator- (const Value<complex<T>>& x, const complex<T>& y) {
+    Value<complex<T>> __k = x;
+    __k -= y;
+
+    __k.add_child(&x);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+    });
+
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator- (const complex<T>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k -= y;
+
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        y.add_grad(__k.get_grad());
+    });
+
+    return __k;
+}
+
+
+template <class T>
+inline
+Value <T>
+operator* (const Value<T>& x, const Value<T>& y) {
+    Value<T> __k = x;
+    __k *= y;
+
+    __k.add_child(&x);
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad() * y);
+        y.add_grad(__k.get_grad() * x);
+    });
+
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator* (const Value<T>& x, const T& y) {
+    Value<T> __k = x;
+    __k *= y;
+
+    __k.add_child(&x);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad() * y);
+    });
+
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator* (const T& x, const T& y) {
+    Value<T> __k = x;
+    __k *= y;
+    return __k;
+}
+
+
+template <class T>
+inline
+Value <T>
+operator* (const Value<complex<T>>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k *= y;
+
+    __k.add_child(&x);
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad() * y);
+        y.add_grad(__k.get_grad() * x);
+    });
+
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator* (const Value<complex<T>>& x, const complex<T>& y) {
+    Value<complex<T>> __k = x;
+    __k *= y;
+
+    __k.add_child(&x);
+
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad() * y);
+    });
+
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator* (const complex<T>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k *= y;
+
+    __k.add_child(&y);
+
+    __k.set_backward([&x, &y, &__k]() {
+        y.add_grad(__k.get_grad() * x);
+    });
+
+    return __k;
+}
+
+
+template <class T>
+inline
+Value <T>
+operator/ (const Value<T>& x, const Value<T>& y) {
+    Value<T> __k = x;
+    __k /= y;
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator/ (const Value<T>& x, const T& y) {
+    Value<T> __k = x;
+    __k /= y;
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator/ (const T& x, const T& y) {
+    Value<T> __k = x;
+    __k /= y;
+    return __k;
+}
+
+
+template <class T>
+inline
+Value <T>
+operator/ (const Value<complex<T>>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k /= y;
+    return __k;
+}
+
+
+template <class T>
+inline
+Value <T>
+operator/ (const complex<T>& x, const Value<complex<T>>& y) {
+    Value<complex<T>> __k = x;
+    __k /= y;
+    return __k;
+}
+
+template <class T>
+inline
+Value <T>
+operator/ (const Value<complex<T>>& x, const complex<T>& y) {
+    Value<complex<T>> __k = x;
+    __k /= y;
     return __k;
 }
 
@@ -276,6 +552,13 @@ inline
 Value <T>
 operator-(const Value<T>& _x) {
     return Value<T>(-_x);
+}
+
+template <class T>
+inline
+Value <T>
+operator-(const Value<complex<T>>& _x) {
+    return Value<complex<T>>(-_x);
 }
 
 
@@ -316,27 +599,27 @@ operator<(const Value<T>& _x, const T& _y) {
 
 // add
 
-// TODO: maybe use class inheritance here
 template <class T>
 inline
-Value<T>
-add(const Value<T>&_x, const Value<T>& _y) {
+Value <T>
+add(const Value<T>& _x, const Value<T>& _y) {
     return _x + _y;
 }
 
 template <class T>
 inline
-Value<T>
+Value <T>
 add(const Value<T>& _x, const T& _y) {
     return _x + _y;
 }
 
 template <class T>
 inline
-T
-add(const T&_x, const T& _y) {
+Value <T>
+add(const T& _x, const T& _y) {
     return _x + _y;
 }
+
 
 /*
 template <class T>
@@ -362,26 +645,27 @@ add(const T& _x, const Value<ptMgrad::complex<T>>& _y) {
 }
 */
 
+
 // sub
 
 template <class T>
 inline
-Value<T>
-sub(const Value<T>&_x, const Value<T>& _y) {
+Value <T>
+sub(const Value<T>& _x, const Value<T>& _y) {
     return _x - _y;
 }
 
 template <class T>
 inline
-Value<T>
+Value <T>
 sub(const Value<T>& _x, const T& _y) {
     return _x - _y;
 }
 
 template <class T>
 inline
-Value<T>
-sub(const T&_x, const T& _y) {
+Value <T>
+sub(const T& _x, const T& _y) {
     return _x - _y;
 }
 
@@ -390,22 +674,22 @@ sub(const T&_x, const T& _y) {
 
 template <class T>
 inline
-Value<T>
-rsub(const Value<T>&_x, const Value<T>& _y) {
+Value <T>
+rsub(const Value<T>& _x, const Value<T>& _y) {
     return _y - _x;
 }
 
 template <class T>
 inline
-Value<T>
+Value <T>
 rsub(const Value<T>& _x, const T& _y) {
     return _y - _x;
 }
 
 template <class T>
 inline
-Value<T>
-rsub(const T&_x, const T& _y) {
+Value <T>
+rsub(const T& _x, const T& _y) {
     return _y - _x;
 }
 
@@ -414,22 +698,22 @@ rsub(const T&_x, const T& _y) {
 
 template <class T>
 inline
-Value<T>
-mul(const Value<T>&_x, const Value<T>& _y) {
+Value <T>
+mul(const Value<T>& _x, const Value<T>& _y) {
     return _x * _y;
 }
 
 template <class T>
 inline
-Value<T>
+Value <T>
 mul(const Value<T>& _x, const T& _y) {
     return _x * _y;
 }
 
 template <class T>
 inline
-Value<T>
-mul(const T&_x, const T& _y) {
+Value <T>
+mul(const T& _x, const T& _y) {
     return _x * _y;
 }
 
@@ -438,22 +722,22 @@ mul(const T&_x, const T& _y) {
 
 template <class T>
 inline
-Value<T>
-div(const Value<T>&_x, const Value<T>& _y) {
+Value <T>
+div(const Value<T>& _x, const Value<T>& _y) {
     return _x / _y;
 }
 
 template <class T>
 inline
-Value<T>
+Value <T>
 div(const Value<T>& _x, const T& _y) {
     return _x / _y;
 }
 
 template <class T>
 inline
-Value<T>
-div(const T&_x, const T& _y) {
+Value <T>
+div(const T& _x, const T& _y) {
     return _x / _y;
 }
 
@@ -462,22 +746,22 @@ div(const T&_x, const T& _y) {
 
 template <class T>
 inline
-Value<T>
-rdiv(const Value<T>&_x, const Value<T>& _y) {
+Value <T>
+rdiv(const Value<T>& _x, const Value<T>& _y) {
     return _y / _x;
 }
 
 template <class T>
 inline
-Value<T>
+Value <T>
 rdiv(const Value<T>& _x, const T& _y) {
     return _y / _x;
 }
 
 template <class T>
 inline
-Value<T>
-rdiv(const T&_x, const T& _y) {
+Value <T>
+rdiv(const T& _x, const T& _y) {
     return _y / _x;
 }
 
@@ -513,9 +797,9 @@ pow(const T& _x, const T& _y) {
 }
 */
 
+
 // neg
 
-// TODO: add negation operator (neg & -)
 template <class T>
 inline
 Value <T>
@@ -525,7 +809,7 @@ neg(const Value<T>& _x) {
 
 template <class T>
 inline
-Value <T>  // TODO: use T instead?
+Value <T>
 neg(const T& _x) {
     return -_x;
 }
@@ -543,14 +827,14 @@ lt(const Value<T>& _x, const Value<T>& _y) {
 template <class T>
 inline
 bool
-lt(const T& _x, const T& _y) {
+lt(const Value<T>& _x, const T& _y) {
     return _x < _y;
 }
 
 template <class T>
 inline
 bool
-lt(const Value<T>& _x, const T& _y) {
+lt(const T& _x, const T& _y) {
     return _x < _y;
 }
 
@@ -567,14 +851,14 @@ gt(const Value<T>& _x, const Value<T>& _y) {
 template <class T>
 inline
 bool
-gt(const T& _x, const T& _y) {
+gt(const Value<T>& _x, const T& _y) {
     return _x > _y;
 }
 
 template <class T>
 inline
 bool
-gt(const Value<T>& _x, const T& _y) {
+gt(const T& _x, const T& _y) {
     return _x > _y;
 }
 
