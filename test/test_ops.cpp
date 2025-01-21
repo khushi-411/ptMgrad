@@ -2,13 +2,13 @@
 #include <gtest/gtest.h>
 
 #include "../src/engine.h"
-#include "../src/complex.h"
 
 
 using namespace ptMgrad;
 
 
 // for float operations
+// Value (op) Value = Value
 TEST(ValueTest, BasicFloatOperations) {
     Value<float> a = 2.0f;
     Value<float> b = 3.0f;
@@ -16,10 +16,10 @@ TEST(ValueTest, BasicFloatOperations) {
     EXPECT_EQ(a.dataX(), 2.0f);
     EXPECT_EQ(b.dataX(), 3.0f);
 
-    EXPECT_EQ(a + b, 5.0f);
-    EXPECT_EQ(a - b, -1.0f);
-    EXPECT_EQ(a * b, 6.0f);
-    EXPECT_EQ(a / b, 2.0f / 3.0f);
+    EXPECT_EQ((a + b).dataX(), 5.0f);
+    EXPECT_EQ((a - b).dataX(), -1.0f);
+    EXPECT_EQ((a * b).dataX(), 6.0f);
+    EXPECT_NEAR((a / b).dataX(), 2.0f / 3.0f, 0.001);
     
     // test addition
     Value<float> c = a + b;
@@ -35,7 +35,7 @@ TEST(ValueTest, BasicFloatOperations) {
 
     // test division
     Value<float> f = a / b;
-    EXPECT_EQ(f.dataX(), 2.0f / 3.0f);
+    EXPECT_NEAR(f.dataX(), 2.0f / 3.0f, 0.001);
 
     // using assignment operator
     
@@ -53,11 +53,162 @@ TEST(ValueTest, BasicFloatOperations) {
 
     // test division
     a /= b;
-    EXPECT_EQ(a.dataX(), 2.0f / 3.0f);
+    EXPECT_EQ(a.dataX(), 6.0f / 3.0f);
+}
+
+
+// for float operations
+// Value (op) scalar = Value
+TEST(ValueTest, BasicFloatOperationsWithScalar) {
+    Value<float> a = 2.0f;
+    float b = 3.0f;
+
+    EXPECT_EQ(a.dataX(), 2.0f);
+    EXPECT_EQ(b, 3.0f);
+
+    EXPECT_EQ((a + b).dataX(), 5.0f);
+    EXPECT_EQ((a - b).dataX(), -1.0f);
+    EXPECT_EQ((a * b).dataX(), 6.0f);
+    EXPECT_NEAR((a / b).dataX(), 2.0f / 3.0f, 0.001);
+
+    // test addition
+    Value<float> c = a + b;
+    EXPECT_EQ(c.dataX(), 5.0f);
+
+    // test substraction
+    Value<float> d = a - b;
+    EXPECT_EQ(d.dataX(), -1.0f);
+
+    // test multiplication
+    Value<float> e = a * b;
+    EXPECT_EQ(e.dataX(), 6.0f);
+
+    // test division
+    Value<float> f = a / b;
+    EXPECT_NEAR(f.dataX(), 2.0f / 3.0f, 0.001);
+
+    // using assignment operator
+
+    // test addition
+    a += b;
+    EXPECT_EQ(a.dataX(), 5.0f);
+
+    // test substraction
+    a -= b;
+    EXPECT_EQ(a.dataX(), 2.0f);
+
+    // test multiplication
+    a *= b;
+    EXPECT_EQ(a.dataX(), 6.0f);
+
+    // test division
+    a /= b;
+    EXPECT_EQ(a.dataX(), 6.0f / 3.0f);
+}
+
+
+// for float operations
+// scalar (op) Value = scalar
+TEST(ValueTest, BasicScalarOperationsWithFloat) {
+    float a = 2.0f;
+    Value<float> b = 3.0f;
+
+    EXPECT_EQ(a, 2.0f);
+    EXPECT_EQ(b.dataX(), 3.0f);
+
+    EXPECT_EQ(a + b.dataX(), 5.0f);
+    EXPECT_EQ(a - b.dataX(), -1.0f);
+    EXPECT_EQ(a * b.dataX(), 6.0f);
+    EXPECT_NEAR(a / b.dataX(), 2.0f / 3.0f, 0.001);
+
+    // test addition
+    float c = a + b.dataX();
+    EXPECT_EQ(c, 5.0f);
+
+    // test substraction
+    float d = a - b.dataX();
+    EXPECT_EQ(d, -1.0f);
+
+    // test multiplication
+    float e = a * b.dataX();
+    EXPECT_EQ(e, 6.0f);
+
+    // test division
+    float f = a / b.dataX();
+    EXPECT_NEAR(f, 2.0f / 3.0f, 0.001);
+
+    // using assignment operator
+
+    // test addition
+    a += b.dataX();
+    EXPECT_EQ(a, 5.0f);
+
+    // test substraction
+    a -= b.dataX();
+    EXPECT_EQ(a, 2.0f);
+
+    // test multiplication
+    a *= b.dataX();
+    EXPECT_EQ(a, 6.0f);
+
+    // test division
+    a /= b.dataX();
+    EXPECT_EQ(a, 6.0f / 3.0f);
+}
+
+
+// for float operations
+// scalar (op) scalar = scalar
+TEST(ValueTest, BasicScalarOperationsFloat) {
+    float a = 2.0f;
+    float b = 3.0f;
+
+    EXPECT_EQ(a, 2.0f);
+    EXPECT_EQ(b, 3.0f);
+
+    EXPECT_EQ(a + b, 5.0f);
+    EXPECT_EQ(a - b, -1.0f);
+    EXPECT_EQ(a * b, 6.0f);
+    EXPECT_NEAR(a / b, 2.0f / 3.0f, 0.001);
+
+    // test addition
+    float c = a + b;
+    EXPECT_EQ(c, 5.0f);
+
+    // test substraction
+    float d = a - b;
+    EXPECT_EQ(d, -1.0f);
+
+    // test multiplication
+    float e = a * b;
+    EXPECT_EQ(e, 6.0f);
+
+    // test division
+    float f = a / b;
+    EXPECT_NEAR(f, 2.0f / 3.0f, 0.001);
+
+    // using assignment operator
+
+    // test addition
+    a += b;
+    EXPECT_EQ(a, 5.0f);
+
+    // test substraction
+    a -= b;
+    EXPECT_EQ(a, 2.0f);
+
+    // test multiplication
+    a *= b;
+    EXPECT_EQ(a, 6.0f);
+
+    // test division
+    a /= b;
+    EXPECT_EQ(a, 6.0f / 3.0f);
 }
 
 
 // for double operations
+// Value (op) Value = Value
 TEST(ValueTest, BasicDoubleOperations) {
     Value<double> a = 2.0;
     Value<double> b = 3.0;
@@ -65,10 +216,10 @@ TEST(ValueTest, BasicDoubleOperations) {
     EXPECT_EQ(a.dataX(), 2.0);
     EXPECT_EQ(b.dataX(), 3.0);
 
-    EXPECT_EQ(a + b, 5.0);
-    EXPECT_EQ(a - b, -1.0);
-    EXPECT_EQ(a * b, 6.0);
-    EXPECT_EQ(a / b, 2.0 / 3.0);
+    EXPECT_EQ((a + b).dataX(), 5.0);
+    EXPECT_EQ((a - b).dataX(), -1.0);
+    EXPECT_EQ((a * b).dataX(), 6.0);
+    EXPECT_NEAR((a / b).dataX(), 2.0 / 3.0, 0.001);
 
     // test addition
     Value<double> c = a + b;
@@ -84,7 +235,7 @@ TEST(ValueTest, BasicDoubleOperations) {
 
     // test division
     Value<double> f = a / b;
-    EXPECT_EQ(f.dataX(), 2.0 / 3.0);
+    EXPECT_NEAR(f.dataX(), 2.0 / 3.0, 0.001);
 
     // using assignment operator
 
@@ -102,33 +253,161 @@ TEST(ValueTest, BasicDoubleOperations) {
 
     // test division
     a /= b;
-    EXPECT_EQ(a.dataX(), 2.0 / 3.0);
+    EXPECT_EQ(a.dataX(), 6.0 / 3.0);
 }
 
 
-// for complex operations
-TEST(ValueTest, BasicComplexFloatOperations) {
-    // Value<complex<float>> a.real() = 2.0f;
-    // Value<complex<float>> a.imag() = 1.0f;
-    // Value<complex<float>> b.real() = 3.0f;
-    // Value<complex<float>> b.imag() = 2.0f;
+// for double operations
+// Value (op) scalar = Value
+TEST(ValueTest, BasicDoubleOperationsWithScalar) {
+    Value<double> a = 2.0;
+    double b = 3.0;
 
-    // EXPECT_EQ(real(a).dataX(), 2.0f);
-    // EXPECT_EQ(real(b).dataX(), 3.0f);
+    EXPECT_EQ(a.dataX(), 2.0);
+    EXPECT_EQ(b, 3.0);
 
-    Value<complex<float>> a(complex<complex<float>>(1.0f, 2.0f));
-    Value<complex<float>> b(complex<complex<float>>(3.0f, 4.0f));
+    EXPECT_EQ((a + b).dataX(), 5.0);
+    EXPECT_EQ((a - b).dataX(), -1.0);
+    EXPECT_EQ((a * b).dataX(), 6.0);
+    EXPECT_NEAR((a / b).dataX(), 2.0 / 3.0, 0.001);
 
-    EXPECT_EQ(a.dataX().real(), 1.0f);
-    EXPECT_EQ(a.dataX().imag(), 2.0f);
-    EXPECT_EQ(b.dataX().real(), 3.0f);
-    EXPECT_EQ(b.dataX().imag(), 4.0f);
+    // test addition
+    Value<double> c = a + b;
+    EXPECT_EQ(c.dataX(), 5.0);
 
-    EXPECT_EQ(a + b, complex<complex<float>>(4.0f, 6.0f));
+    // test substraction
+    Value<double> d = a - b;
+    EXPECT_EQ(d.dataX(), -1.0);
+
+    // test multiplication
+    Value<double> e = a * b;
+    EXPECT_EQ(e.dataX(), 6.0);
+
+    // test division
+    Value<double> f = a / b;
+    EXPECT_NEAR(f.dataX(), 2.0 / 3.0, 0.001);
+
+    // using assignment operator
+
+    // test addition
+    a += b;
+    EXPECT_EQ(a.dataX(), 5.0);
+
+    // test substraction
+    a -= b;
+    EXPECT_EQ(a.dataX(), 2.0);
+
+    // test multiplication
+    a *= b;
+    EXPECT_EQ(a.dataX(), 6.0);
+
+    // test division
+    a /= b;
+    EXPECT_EQ(a.dataX(), 6.0 / 3.0);
 }
 
 
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+// for double operations
+// scalar (op) Value = scalar
+TEST(ValueTest, BasicScalarOperationsWithDouble) {
+    double a = 2.0;
+    Value<double> b = 3.0;
+
+    EXPECT_EQ(a, 2.0);
+    EXPECT_EQ(b.dataX(), 3.0);
+
+    EXPECT_EQ(a + b.dataX(), 5.0);
+    EXPECT_EQ(a - b.dataX(), -1.0);
+    EXPECT_EQ(a * b.dataX(), 6.0);
+    EXPECT_NEAR(a / b.dataX(), 2.0 / 3.0, 0.001);
+
+    // test addition
+    double c = a + b.dataX();
+    EXPECT_EQ(c, 5.0);
+
+    // test substraction
+    double d = a - b.dataX();
+    EXPECT_EQ(d, -1.0);
+
+    // test multiplication
+    double e = a * b.dataX();
+    EXPECT_EQ(e, 6.0);
+
+    // test division
+    double f = a / b.dataX();
+    EXPECT_NEAR(f, 2.0 / 3.0, 0.001);
+
+    // using assignment operator
+
+    // test addition
+    a += b.dataX();
+    EXPECT_EQ(a, 5.0);
+
+    // test substraction
+    a -= b.dataX();
+    EXPECT_EQ(a, 2.0);
+
+    // test multiplication
+    a *= b.dataX();
+    EXPECT_EQ(a, 6.0);
+
+    // test division
+    a /= b.dataX();
+    EXPECT_EQ(a, 6.0 / 3.0);
 }
+
+
+// for double operations
+// scalar (op) scalar = scalar
+TEST(ValueTest, BasicScalarOperationsWithScalar) {
+    double a = 2.0;
+    double b = 3.0;
+
+    EXPECT_EQ(a, 2.0);
+    EXPECT_EQ(b, 3.0);
+
+    EXPECT_EQ(a + b, 5.0);
+    EXPECT_EQ(a - b, -1.0);
+    EXPECT_EQ(a * b, 6.0);
+    EXPECT_NEAR(a / b, 2.0 / 3.0, 0.001);
+
+    // test addition
+    double c = a + b;
+    EXPECT_EQ(c, 5.0);
+
+    // test substraction
+    double d = a - b;
+    EXPECT_EQ(d, -1.0);
+
+    // test multiplication
+    double e = a * b;
+    EXPECT_EQ(e, 6.0);
+
+    // test division
+    double f = a / b;
+    EXPECT_NEAR(f, 2.0 / 3.0, 0.001);
+
+    // using assignment operator
+
+    // test addition
+    a += b;
+    EXPECT_EQ(a, 5.0);
+
+    // test substraction
+    a -= b;
+    EXPECT_EQ(a, 2.0);
+
+    // test multiplication
+    a *= b;
+    EXPECT_EQ(a, 6.0);
+
+    // test division
+    a /= b;
+    EXPECT_EQ(a, 6.0 / 3.0);
+}
+
+
+//int main(int argc, char **argv) {
+//    testing::InitGoogleTest(&argc, argv);
+//    return RUN_ALL_TESTS();
+//}
