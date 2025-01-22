@@ -51,3 +51,29 @@ TEST(ValueTest, ScalarNegDouble) {
 
     EXPECT_EQ(b.dataX(), -2.0);
 }
+
+TEST(ValueTest, VectorNeg) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+
+    std::vector<Value<float>> b = ptMgrad::neg(a);
+
+    EXPECT_EQ(b[0].dataX(), -2.0f);
+    EXPECT_EQ(b[1].dataX(), -3.0f);
+    EXPECT_EQ(b[2].dataX(), -4.0f);
+}
+
+TEST(ValueTest, MatrixNeg) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+
+    std::vector<std::vector<Value<float>>> b = ptMgrad::neg(a);
+
+    EXPECT_EQ(b[0][0].dataX(), -2.0f);
+    EXPECT_EQ(b[0][1].dataX(), -3.0f);
+    EXPECT_EQ(b[0][2].dataX(), -4.0f);
+    EXPECT_EQ(b[1][0].dataX(), -5.0f);
+    EXPECT_EQ(b[1][1].dataX(), 6.0f);
+    EXPECT_EQ(b[1][2].dataX(), -7.0f);
+}

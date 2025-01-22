@@ -24,13 +24,13 @@ class Value {
 private:
     T x;
     T y;
-    mutable T grad = 0.0;
+    mutable T grad = T(0);
     std::vector<Value<T>*> children;
     std::function<void()> backward_fn = []() {};
 
 public:
     // default constructor
-    Value() : x(0), y(0) {}
+    Value() : x(T(0.0)), y(T(0.0)) {}
 
     template <class _X> constexpr
     Value(const Value<_X>& _x) : x(_x) {}
@@ -594,7 +594,6 @@ operator<(const Value<T>& _x, const T& _y) {
 }
 */
 
-
 // add
 
 template <class T>
@@ -616,6 +615,64 @@ inline
 Value <T>
 add(const T& _x, const T& _y) {
     return _x + _y;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+add(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] + _y[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+add(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] + _y);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+add(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(add(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+add(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(add(_x[i], _y));
+    }
+    return __k;
 }
 
 
@@ -668,6 +725,64 @@ sub(const T& _x, const T& _y) {
 }
 
 
+template <class T>
+inline
+std::vector<Value<T>>
+sub(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] - _y[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+sub(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] - _y);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+sub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(sub(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+sub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(sub(_x[i], _y));
+    }
+    return __k;
+}
+
+
 // rsub
 
 template <class T>
@@ -689,6 +804,64 @@ inline
 Value <T>
 rsub(const T& _x, const T& _y) {
     return _y - _x;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+rsub(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y[i] - _x[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+rsub(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y - _x[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+rsub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(rsub(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+rsub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(rsub(_x[i], _y));
+    }
+    return __k;
 }
 
 
@@ -716,6 +889,63 @@ mul(const T& _x, const T& _y) {
 }
 
 
+template <class T>
+inline
+std::vector<Value<T>>
+mul(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] * _y[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+mul(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] * _y);
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+mul(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(mul(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+mul(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(mul(_x[i], _y));
+    }
+    return __k;
+}
+
+
 // div
 
 template <class T>
@@ -740,6 +970,63 @@ div(const T& _x, const T& _y) {
 }
 
 
+template <class T>
+inline
+std::vector<Value<T>>
+div(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] / _y[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+div(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] / _y);
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+div(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(div(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+div(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(div(_x[i], _y));
+    }
+    return __k;
+}
+
+
 // rdiv
 
 template <class T>
@@ -761,6 +1048,31 @@ inline
 Value <T>
 rdiv(const T& _x, const T& _y) {
     return _y / _x;
+}
+
+template <class T>
+inline
+std::vector<Value<T>>
+rdiv(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y[i] / _x[i]);
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+rdiv(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y / _x[i]);
+    }
+    return __k;
 }
 
 
@@ -811,6 +1123,30 @@ neg(const T& _x) {
     return Value<T>(-_x);
 }
 
+template <class T>
+inline
+std::vector<Value<T>>
+neg(const std::vector<Value<T>>& _x) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(-_x[i].dataX());
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+neg(const std::vector<std::vector<Value<T>>>& _x) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(neg(_x[i]));
+    }
+    return __k;
+}
+
 
 // lt
 
@@ -835,6 +1171,30 @@ lt(const T& _x, const T& _y) {
     return _x < _y;
 }
 
+template <class T>
+inline
+std::vector<bool>
+lt(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<bool> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] < _y[i]);
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<bool>
+lt(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<bool> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] < _y);
+    }
+    return __k;
+}
+
 
 // gt
 
@@ -857,6 +1217,57 @@ inline
 bool
 gt(const T& _x, const T& _y) {
     return _x > _y;
+}
+
+
+// relu
+
+template <class T>
+inline
+Value <T>
+relu(const Value<T>& _x) {
+    if (_x.dataX() < 0.0) {
+        return Value<T>(0.0);
+    } else {
+        return Value<T>(_x.dataX());
+    }
+}
+
+template <class T>
+inline
+Value <T>
+relu(const T& _x) {
+    if (_x < 0.0) {
+        return Value<T>(0.0);
+    } else {
+        return Value<T>(_x);
+    }
+}
+
+
+template <class T>
+inline
+std::vector<Value<T>>
+relu(const std::vector<Value<T>>& _x) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (auto& x : _x) {
+        __k.push_back(relu(x));
+    }
+    return __k;
+}
+
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+relu(const std::vector<std::vector<Value<T>>>& _x) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (auto& x_row : _x) {
+        __k.push_back(relu(x_row));
+    }
+    return __k;
 }
 
 }

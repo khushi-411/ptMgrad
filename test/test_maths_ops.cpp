@@ -110,6 +110,72 @@ TEST(ValueTest, ScalarAddScalarDouble) {
     EXPECT_EQ(c.dataX(), 5.0);
 }
 
+// for vector x vector operations
+TEST(ValueTest, VectorAdd) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<Value<float>> c = ptMgrad::add(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 7.0f);
+    EXPECT_EQ(c[1].dataX(), -3.0f);
+    EXPECT_EQ(c[2].dataX(), 11.0f);
+}
+
+
+// for vector x scalar operations
+TEST(ValueTest, VectorAddScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<Value<float>> c = ptMgrad::add(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 7.0f);
+    EXPECT_EQ(c[1].dataX(), 8.0f);
+    EXPECT_EQ(c[2].dataX(), 9.0f);
+}
+
+
+// for matrix x matrix operations
+TEST(ValueTest, MatrixAdd) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    std::vector<std::vector<Value<float>>> b = {
+        {5.0f, -6.0f, 7.0f},
+        {2.0f, 3.0f, 4.0f}
+    };
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::add(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 7.0f);
+    EXPECT_EQ(c[0][1].dataX(), -3.0f);
+    EXPECT_EQ(c[0][2].dataX(), 11.0f);
+    EXPECT_EQ(c[1][0].dataX(), 7.0f);
+    EXPECT_EQ(c[1][1].dataX(), -3.0f);
+    EXPECT_EQ(c[1][2].dataX(), 11.0f);
+}
+
+
+// for matrix x scalar operations
+TEST(ValueTest, MatrixAddScalar) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    float b = 5.0f;
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::add(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 7.0f);
+    EXPECT_EQ(c[0][1].dataX(), 8.0f);
+    EXPECT_EQ(c[0][2].dataX(), 9.0f);
+    EXPECT_EQ(c[1][0].dataX(), 10.0f);
+    EXPECT_EQ(c[1][1].dataX(), -1.0f);
+    EXPECT_EQ(c[1][2].dataX(), 12.0f);
+}
+
 
 // substraction
 
@@ -193,6 +259,72 @@ TEST(ValueTest, ScalarSubScalarDouble) {
     Value<double> c = ptMgrad::sub(a, b);
 
     EXPECT_EQ(c.dataX(), -1.0);
+}
+
+// for vector x vector operations
+TEST(ValueTest, VectorSub) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<Value<float>> c = ptMgrad::sub(a, b);
+
+    EXPECT_EQ(c[0].dataX(), -3.0f);
+    EXPECT_EQ(c[1].dataX(), 9.0f);
+    EXPECT_EQ(c[2].dataX(), -3.0f);
+}
+
+
+// for vector x scalar operations
+TEST(ValueTest, VectorSubScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<Value<float>> c = ptMgrad::sub(a, b);
+
+    EXPECT_EQ(c[0].dataX(), -3.0f);
+    EXPECT_EQ(c[1].dataX(), -2.0f);
+    EXPECT_EQ(c[2].dataX(), -1.0f);
+}
+
+
+// for matrix x matrix operations
+TEST(ValueTest, MatrixSub) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    std::vector<std::vector<Value<float>>> b = {
+        {5.0f, -6.0f, 7.0f},
+        {2.0f, 3.0f, 4.0f}
+    };
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::sub(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), -3.0f);
+    EXPECT_EQ(c[0][1].dataX(), 9.0f);
+    EXPECT_EQ(c[0][2].dataX(), -3.0f);
+    EXPECT_EQ(c[1][0].dataX(), 3.0f);
+    EXPECT_EQ(c[1][1].dataX(), -9.0f);
+    EXPECT_EQ(c[1][2].dataX(), 3.0f);
+}
+
+
+// for matrix x scalar operations
+TEST(ValueTest, MatrixSubScalar) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    float b = 5.0f;
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::sub(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), -3.0f);
+    EXPECT_EQ(c[0][1].dataX(), -2.0f);
+    EXPECT_EQ(c[0][2].dataX(), -1.0f);
+    EXPECT_EQ(c[1][0].dataX(), 0.0f);
+    EXPECT_EQ(c[1][1].dataX(), -11.0f);
+    EXPECT_EQ(c[1][2].dataX(), 2.0f);
 }
 
 
@@ -281,6 +413,37 @@ TEST(ValueTest, ScalarRsubScalarDouble) {
     EXPECT_EQ(c.dataX(), 1.0);
 }
 
+/*
+// for vector x scalar operations
+TEST(ValueTest, VectorRsubScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<Value<float>> c = ptMgrad::rsub(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 3.0f);
+    EXPECT_EQ(c[1].dataX(), 2.0f);
+    EXPECT_EQ(c[2].dataX(), 1.0f);
+}
+
+// for matrix x scalar operations
+TEST(ValueTest, MatrixRsubScalar) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    float b = 5.0f;
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::rsub(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 3.0f);
+    EXPECT_EQ(c[0][1].dataX(), 2.0f);
+    EXPECT_EQ(c[0][2].dataX(), 1.0f);
+    EXPECT_EQ(c[1][0].dataX(), 0.0f);
+    EXPECT_EQ(c[1][1].dataX(), 11.0f);
+    EXPECT_EQ(c[1][2].dataX(), -2.0f);
+}
+*/
 
 // multiplication
 
@@ -366,6 +529,87 @@ TEST(ValueTest, ScalarMulScalarDouble) {
     EXPECT_EQ(c.dataX(), 6.0);
 }
 
+// for vector x scalar operations
+TEST(ValueTest, VectorMulScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<Value<float>> c = ptMgrad::mul(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 10.0f);
+    EXPECT_EQ(c[1].dataX(), 15.0f);
+    EXPECT_EQ(c[2].dataX(), 20.0f);
+}
+
+// for vector x vector operations
+TEST(ValueTest, VectorMulVector) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<Value<float>> c = ptMgrad::mul(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 10.0f);
+    EXPECT_EQ(c[1].dataX(), -18.0f);
+    EXPECT_EQ(c[2].dataX(), 28.0f);
+}
+/*
+// for matrix x vector operations
+TEST(ValueTest, MatrixMulVector) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::mul(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 10.0f);
+    EXPECT_EQ(c[0][1].dataX(), -18.0f);
+    EXPECT_EQ(c[0][2].dataX(), 28.0f);
+    EXPECT_EQ(c[1][0].dataX(), 10.0f);
+    EXPECT_EQ(c[1][1].dataX(), -18.0f);
+    EXPECT_EQ(c[1][2].dataX(), 28.0f);
+}
+*/
+// for matrix x matrix operations
+TEST(ValueTest, MatrixMul) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    std::vector<std::vector<Value<float>>> b = {
+        {5.0f, -6.0f, 7.0f},
+        {2.0f, 3.0f, 4.0f}
+    };
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::mul(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 10.0f);
+    EXPECT_EQ(c[0][1].dataX(), -18.0f);
+    EXPECT_EQ(c[0][2].dataX(), 28.0f);
+    EXPECT_EQ(c[1][0].dataX(), 10.0f);
+    EXPECT_EQ(c[1][1].dataX(), -18.0f);
+    EXPECT_EQ(c[1][2].dataX(), 28.0f);
+}
+
+// for matrix x scalar operations
+TEST(ValueTest, MatrixMulScalar) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    float b = 5.0f;
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::mul(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 10.0f);
+    EXPECT_EQ(c[0][1].dataX(), 15.0f);
+    EXPECT_EQ(c[0][2].dataX(), 20.0f);
+    EXPECT_EQ(c[1][0].dataX(), 25.0f);
+    EXPECT_EQ(c[1][1].dataX(), -30.0f);
+    EXPECT_EQ(c[1][2].dataX(), 35.0f);
+}
+
 
 // division
 
@@ -449,6 +693,51 @@ TEST(ValueTest, ScalarDivScalarDouble) {
     Value<double> c = ptMgrad::div(a, b);
 
     EXPECT_NEAR(c.dataX(), 2.0 / 3.0, 0.001);
+}
+
+// for vector x vector operations
+TEST(ValueTest, VectorDiv) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<Value<float>> c = ptMgrad::div(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 2.0f / 5.0f);
+    EXPECT_EQ(c[1].dataX(), 3.0f / -6.0f);
+    EXPECT_EQ(c[2].dataX(), 4.0f / 7.0f);
+}
+
+// for vector x scalar operations
+TEST(ValueTest, VectorDivScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<Value<float>> c = ptMgrad::div(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 2.0f / 5.0f);
+    EXPECT_EQ(c[1].dataX(), 3.0f / 5.0f);
+    EXPECT_EQ(c[2].dataX(), 4.0f / 5.0f);
+}
+
+// for matrix x matrix operations
+TEST(ValueTest, MatrixDiv) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    std::vector<std::vector<Value<float>>> b = {
+        {5.0f, -6.0f, 7.0f},
+        {2.0f, 3.0f, 4.0f}
+    };
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::div(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 2.0f / 5.0f);
+    EXPECT_EQ(c[0][1].dataX(), 3.0f / -6.0f);
+    EXPECT_EQ(c[0][2].dataX(), 4.0f / 7.0f);
+    EXPECT_EQ(c[1][0].dataX(), 5.0f / 2.0f);
+    EXPECT_EQ(c[1][1].dataX(), -6.0f / 3.0f);
+    EXPECT_EQ(c[1][2].dataX(), 7.0f / 4.0f);
 }
 
 
@@ -537,6 +826,69 @@ TEST(ValueTest, ScalarRdivScalarDouble) {
     EXPECT_EQ(c.dataX(), 1.5);
 }
 
+// for vector x vector operations
+TEST(ValueTest, VectorRdiv) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<Value<float>> c = ptMgrad::rdiv(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 5.0f / 2.0f);
+    EXPECT_EQ(c[1].dataX(), -6.0f / 3.0f);
+    EXPECT_EQ(c[2].dataX(), 7.0f / 4.0f);
+}
+/*
+// for vector x scalar operations
+TEST(ValueTest, VectorRdivScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<Value<float>> c = ptMgrad::rdiv(a, b);
+
+    EXPECT_EQ(c[0].dataX(), 5.0f / 2.0f);
+    EXPECT_EQ(c[1].dataX(), 5.0f / 3.0f);
+    EXPECT_EQ(c[2].dataX(), 5.0f / 4.0f);
+}
+
+// for matrix x matrix operations
+TEST(ValueTest, MatrixRdiv) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    std::vector<std::vector<Value<float>>> b = {
+        {5.0f, -6.0f, 7.0f},
+        {2.0f, 3.0f, 4.0f}
+    };
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::rdiv(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 5.0f / 2.0f);
+    EXPECT_EQ(c[0][1].dataX(), -6.0f / 3.0f);
+    EXPECT_EQ(c[0][2].dataX(), 7.0f / 4.0f);
+    EXPECT_EQ(c[1][0].dataX(), 2.0f / 5.0f);
+    EXPECT_EQ(c[1][1].dataX(), 3.0f / -6.0f);
+    EXPECT_EQ(c[1][2].dataX(), 4.0f / 7.0f);
+}
+
+// matrix x scalar operations
+TEST(ValueTest, MatrixRdivScalar) {
+    std::vector<std::vector<Value<float>>> a = {
+        {2.0f, 3.0f, 4.0f},
+        {5.0f, -6.0f, 7.0f}
+    };
+    float b = 5.0f;
+
+    std::vector<std::vector<Value<float>>> c = ptMgrad::rdiv(a, b);
+
+    EXPECT_EQ(c[0][0].dataX(), 5.0f / 2.0f);
+    EXPECT_EQ(c[0][1].dataX(), 5.0f / 3.0f);
+    EXPECT_EQ(c[0][2].dataX(), 5.0f / 4.0f);
+    EXPECT_EQ(c[1][0].dataX(), 5.0f / 5.0f);
+    EXPECT_EQ(c[1][1].dataX(), 5.0f / -6.0f);
+    EXPECT_EQ(c[1][2].dataX(), 5.0f / 7.0f);
+}
+*/
 
 // Pow
 

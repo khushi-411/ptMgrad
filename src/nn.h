@@ -40,7 +40,7 @@ public:
         for (size_t i = 0; i < w.size(); ++i) {
             act += w[i] * x[i];
         }
-        return nonlin ? act.relu() : act; 
+        return nonlin ? ptMgrad::relu(act) : act;
     }
 
     std::vector<Value<T>*> parameters() override {

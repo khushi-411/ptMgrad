@@ -48,6 +48,38 @@ TEST(ValueTest, ScalarLtFloat) {
 }
 */
 
+TEST(ValueTest, ScalarLtScalar) {
+    float a = 2.0f;
+    float b = 3.0f;
+
+    bool c = ptMgrad::lt(a, b);
+
+    EXPECT_EQ(c, true);
+}
+
+TEST(ValueTest, VectorLtVector) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
+
+    std::vector<bool> c = ptMgrad::lt(a, b);
+
+    EXPECT_EQ(c[0], true);
+    EXPECT_EQ(c[1], false);
+    EXPECT_EQ(c[2], true);
+}
+
+TEST(ValueTest, VectorLtScalar) {
+    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+    float b = 5.0f;
+
+    std::vector<bool> c = ptMgrad::lt(a, b);
+
+    EXPECT_EQ(c[0], true);
+    EXPECT_EQ(c[1], true);
+    EXPECT_EQ(c[2], true);
+}
+
+
 // gt
 
 TEST(ValueTest, FloatGt) {

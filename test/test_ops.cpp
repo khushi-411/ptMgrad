@@ -475,7 +475,6 @@ TEST(ValueTest, BasicFloatDoubleOperations) {
     EXPECT_EQ(a.dataX(), 6.0 / 3.0);
 }
 
-
 // for double x float operations
 // DoubleValue (op) FloatValue = DoubleValue
 TEST(ValueTest, BasicDoubleFloatOperations) {
@@ -526,7 +525,7 @@ TEST(ValueTest, BasicDoubleFloatOperations) {
 }
 */
 
-//int main(int argc, char **argv) {
-//    testing::InitGoogleTest(&argc, argv);
-//    return RUN_ALL_TESTS();
-//}
+// int main(int argc, char **argv) {
+//     testing::InitGoogleTest(&argc, argv);
+//     return RUN_ALL_TESTS();
+// }

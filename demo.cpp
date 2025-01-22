@@ -34,7 +34,7 @@ int main() {
     for (int i = 0; i < 100; i++) {
         for (size_t j = 0; j < x.size(); j++) {
             auto ypred = model(x[j]);
-            auto loss = (ypred[0] - y[j]).pow(2);
+            auto loss = ptMgrad::pow((ypred[0] - y[j]), 2.0);
             loss.backward();
             model.zero_grad();
         }
