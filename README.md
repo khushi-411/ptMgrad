@@ -23,8 +23,7 @@ mkdir build && cd build && cmake .. && make
 
 ```
 ./build/ptMgrad_tests
-```
-or
-```
+
+# or
 make test
 ```

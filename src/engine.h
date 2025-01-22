@@ -11,6 +11,7 @@
 #include <iostream>
 #include <set>
 #include <functional>
+#include <cmath>
 
 #include "complex.h"
 
@@ -176,8 +177,7 @@ public:
     }
 
     // TODO: why const?
-    // TODO: Figure out why we don't need this
-    /*template <class _X> constexpr
+    template <class _X> constexpr
     bool operator<(const Value<_X>& _x) const {  // Note: return type bool
         return x < _x.x;
     }
@@ -185,7 +185,9 @@ public:
     template <class _X> constexpr
     bool operator<(const _X& _x) {
         return x < _x;
-    }*/
+    }
+
+    // TODO: why we don't need operator>
 
     friend std::ostream& operator<< (std::ostream& os, const Value& _x) {
         os << _x.x;
@@ -194,12 +196,12 @@ public:
 };
 
 
-//template <typename T>
-//T add_grad(const T& v, const T& _grad) {
-//    T grad = 0.0;
-//    grad = v + _grad;
-//    return grad;
-//}
+// template <typename T>
+// T add_grad(const T& v, const T& _grad) {
+//     T grad = 0.0;
+//     grad = v + _grad;
+//     return grad;
+// }
 
 
 template <class T>
@@ -562,18 +564,14 @@ operator-(const Value<complex<T>>& _x) {
 }
 
 
-// TODO: figure out the exact reason why we don't need this
-// most probably in this case we don't need this because it already returns bool
-// other case don't return bool therefore we need those
-// if we add these operator overloading and use "lt(a, b)" it causes the following:
-// Program returned: 139: Program terminated with signal: SIGSEGV
+// Either keep this or the operator< member function in Value class
 /*
 template <class T>
 inline
 bool
 operator<(const Value<T>& _x, const Value<T>& _y) {
     bool __k;
-    __k = _x < _y;
+    __k = _x.dataX() < _y.dataX();
     return __k;
 }
 
@@ -591,7 +589,7 @@ inline
 bool
 operator<(const Value<T>& _x, const T& _y) {
     bool __k;
-    __k = _x < _y;
+    __k = _x.dataX() < _y;
     return __k;
 }
 */
@@ -683,7 +681,7 @@ template <class T>
 inline
 Value <T>
 rsub(const Value<T>& _x, const T& _y) {
-    return _y - _x;
+    return _y - _x.dataX();
 }
 
 template <class T>
@@ -755,7 +753,7 @@ template <class T>
 inline
 Value <T>
 rdiv(const Value<T>& _x, const T& _y) {
-    return _y / _x;
+    return _y / _x.dataX();
 }
 
 template <class T>
@@ -767,7 +765,7 @@ rdiv(const T& _x, const T& _y) {
 
 
 // pow
-/*
+
 template <class T>
 inline
 Value<T>
@@ -795,7 +793,6 @@ pow(const T& _x, const T& _y) {
     __k = std::pow(_x, _y);
     return Value<T>(__k);
 }
-*/
 
 
 // neg
@@ -804,14 +801,14 @@ template <class T>
 inline
 Value <T>
 neg(const Value<T>& _x) {
-    return -_x;
+    return Value<T>(-_x.dataX());
 }
 
 template <class T>
 inline
 Value <T>
 neg(const T& _x) {
-    return -_x;
+    return Value<T>(-_x);
 }
 
 
