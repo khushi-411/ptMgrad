@@ -451,10 +451,11 @@ operator* (const Value<complex<T>>& x, const Value<complex<T>>& y) {
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad() * y);
-        y.add_grad(__k.get_grad() * x);
-    });
+    // TODO: fix this
+    //__k.set_backward([&x, &y, &__k]() {
+    //    x.add_grad(__k.get_grad() * y);
+    //    y.add_grad(__k.get_grad() * x);
+    //});
 
     return __k;
 }
@@ -675,7 +676,6 @@ add(
     return __k;
 }
 
-
 /*
 template <class T>
 inline
@@ -691,7 +691,6 @@ add(const Value<ptMgrad::complex<T>>& _x, const T& _y) {
     return _x + _y;
 }
 
-
 template <class T>
 inline
 Value<complex<T>>
@@ -699,7 +698,6 @@ add(const T& _x, const Value<ptMgrad::complex<T>>& _y) {
     return _x + _y;
 }
 */
-
 
 // sub
 
@@ -1147,10 +1145,32 @@ neg(const std::vector<std::vector<Value<T>>>& _x) {
     return __k;
 }
 
+template <class T>
+inline
+Value<ptMgrad::complex<T>>
+neg(const Value<ptMgrad::complex<T>>& _x) {
+    return Value<complex<T>>(complex<T>(-_x.dataX().real(), -_x.dataX().imag()));
+}
+
+template <class T>
+inline
+std::vector<Value<ptMgrad::complex<T>>>
+neg(const std::vector<Value<ptMgrad::complex<T>>>& _x) {
+    std::vector<Value<complex<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(
+            Value<complex<T>>(complex<T>(-_x[i].dataX().real(), -_x[i].dataX().imag()))
+        );
+    }
+    return __k;
+}
+
 
 // lt
 
-template <class T>
+template <class T>    return Value<ptMgrad::complex<T>>(-_x.dataX());
+
 inline
 bool
 lt(const Value<T>& _x, const Value<T>& _y) {
@@ -1195,6 +1215,36 @@ lt(const std::vector<Value<T>>& _x, const T& _y) {
     return __k;
 }
 
+template <class T>
+inline
+std::vector<std::vector<bool>>
+lt(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<bool>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(lt(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<bool>>
+lt(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<bool>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(lt(_x[i], _y));
+    }
+    return __k;
+}
+
 
 // gt
 
@@ -1217,6 +1267,60 @@ inline
 bool
 gt(const T& _x, const T& _y) {
     return _x > _y;
+}
+
+template <class T>
+inline
+std::vector<bool>
+gt(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<bool> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] > _y[i]);
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<bool>
+gt(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<bool> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] > _y);
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<bool>>
+gt(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<bool>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(gt(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<bool>>
+gt(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<bool>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(gt(_x[i], _y));
+    }
+    return __k;
 }
 
 

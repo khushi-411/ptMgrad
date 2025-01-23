@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <cmath>
 
 
 namespace ptMgrad {
@@ -564,6 +565,35 @@ inline
 complex<T>
 rdiv(const T& _x, const complex<T>& _y) {
     return _y / _x;
+}
+
+template <class T>
+inline
+complex<T>
+pow(const complex<T>& _x, const complex<T>& _y) {
+    return complex<T>(std::pow(_x.real(), _y.real()), std::pow(_x.imag(), _y.imag()));
+}
+
+template <class T>
+inline
+complex<T>
+pow(const complex<T>& _x, const T& _y) {
+    return complex<T>(std::pow(_x.real(), _y), std::pow(_x.imag(), _y));
+}
+
+template <class T>
+inline
+complex<T>
+pow(const T& _x, const complex<T>& _y) {
+    return complex<T>(std::pow(_x, _y.real()), std::pow(_x, _y.imag()));
+}
+
+
+template <class T>
+inline
+complex<T>
+neg(const complex<T>& _x) {
+    return complex<T>(-_x.real(), -_x.imag());
 }
 
 }

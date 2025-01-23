@@ -77,3 +77,47 @@ TEST(ValueTest, MatrixNeg) {
     EXPECT_EQ(b[1][1].dataX(), 6.0f);
     EXPECT_EQ(b[1][2].dataX(), -7.0f);
 }
+
+TEST(ValueTest, ComplexNeg) {
+    Value<complex<float>> a(complex<float>(1.0f, 2.0f));
+
+    Value<complex<float>> b = ptMgrad::neg(a);
+
+    EXPECT_EQ(b.dataX().real(), -1.0f);
+    EXPECT_EQ(b.dataX().imag(), -2.0f);
+}
+
+TEST(ValueTest, ComplexNegNeg) {
+    Value<complex<float>> a(complex<float>(-1.0f, -2.0f));
+
+    Value<complex<float>> b = ptMgrad::neg(a);
+
+    EXPECT_EQ(b.dataX().real(), 1.0f);
+    EXPECT_EQ(b.dataX().imag(), 2.0f);
+}
+
+TEST(ValueTest, ComplexNegScalar) {
+    complex<float> a(1.0f, 2.0f);
+
+    Value<complex<float>> b = ptMgrad::neg(a);
+
+    EXPECT_EQ(b.dataX().real(), -1.0f);
+    EXPECT_EQ(b.dataX().imag(), -2.0f);
+}
+
+TEST(ValueTest, ComplexNegVector) {
+    std::vector<Value<complex<float>>> a = {
+        Value<complex<float>>(complex<float>(1.0f, 2.0f)),
+        Value<complex<float>>(complex<float>(3.0f, 4.0f)),
+        Value<complex<float>>(complex<float>(5.0f, 6.0f))
+    };
+
+    std::vector<Value<complex<float>>> b = ptMgrad::neg(a);
+
+    EXPECT_EQ(b[0].dataX().real(), -1.0f);
+    EXPECT_EQ(b[0].dataX().imag(), -2.0f);
+    EXPECT_EQ(b[1].dataX().real(), -3.0f);
+    EXPECT_EQ(b[1].dataX().imag(), -4.0f);
+    EXPECT_EQ(b[2].dataX().real(), -5.0f);
+    EXPECT_EQ(b[2].dataX().imag(), -6.0f);
+}

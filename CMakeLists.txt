@@ -45,6 +45,7 @@ list(APPEND PTMGRAD_TESTS
     ${PTMGRAD_TEST_DIR}/test_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_complex_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_maths_ops.cpp
+    ${PTMGRAD_TEST_DIR}/test_complex_maths_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_comparison_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_unary_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_activation_funcs.cpp
