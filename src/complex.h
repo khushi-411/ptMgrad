@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 
+#include "engine.h"
 
 namespace ptMgrad {
 
@@ -450,27 +451,27 @@ template <class T>
 inline
 complex<T>
 operator*(const complex<T>& _x, const complex<T>& _y) {
-    complex<T> __k = _x;
-    __k *= _y;
-    return __k;
+    T _real = _x.real() * _y.real() - _x.imag() * _y.imag();
+    T _imag = (_x.real() + _x.imag()) * (_y.real() + _y.imag()) - (_x.real() * _y.real() + _x.imag() * _y.imag());
+    return complex<T>(_real, _imag);
 }
 
 template <class T>
 inline
 complex<T>
 operator*(const complex<T>& _x, const T& _y) {
-    complex<T> __k = _x;
-    __k *= _y;
-    return __k;
+    T _real = _x.real() * _y;
+    T _imag = _x.imag() * _y;
+    return complex<T>(_real, _imag);
 }
 
 template <class T>
 inline
 complex<T>
 operator*(const T& _x, const complex<T>& _y) {
-    complex<T> __k = _x;
-    __k *= _y;
-    return __k;
+    T _real = _x * _y.real();
+    T _imag = _x * _y.imag();
+    return complex<T>(_real, _imag);
 }
 
 
@@ -478,27 +479,27 @@ template <class T>
 inline
 complex<T>
 operator/(const complex<T>& _x, const complex<T>& _y) {
-    complex<T> __k = _x;
-    __k /= _y;
-    return __k;
+    T __k1 = _x.real() * _y.real() + _x.imag() * _y.imag();
+    T __k2 = _x.imag() * _y.real() - _x.real() * _y.imag();
+    T __k3 = _y.real() * _y.real() + _y.imag() * _y.imag();
+    return complex<T>(__k1 / __k3, __k2 / __k3);
 }
 
 template <class T>
 inline
 complex<T>
 operator/(const complex<T>& _x, const T& _y) {
-    complex<T> __k = _x;
-    __k /= _y;
-    return __k;
+    return complex<T>(_x.real() / _y, _x.imag() / _y);
 }
 
 template <class T>
 inline
 complex<T>
 operator/(const T& _x, const complex<T>& _y) {
-    complex<T> __k = _x;
-    __k /= _y;
-    return __k;
+    T __k1 = _x * _y.real();
+    T __k2 = -_x * _y.imag();
+    T __k3 = _y.real() * _y.real() + _y.imag() * _y.imag();
+    return complex<T>(__k1 / __k3, __k2 / __k3);
 }
 
 

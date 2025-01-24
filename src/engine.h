@@ -632,6 +632,7 @@ add(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
 }
 
 
+
 template <class T>
 inline
 std::vector<Value<T>>
@@ -675,6 +676,7 @@ add(
     }
     return __k;
 }
+
 
 /*
 template <class T>
@@ -1104,6 +1106,77 @@ pow(const T& _x, const T& _y) {
     return Value<T>(__k);
 }
 
+/*
+template <class T>
+inline
+std::vector<Value<T>>
+pow(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(pow(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<Value<T>>
+pow(const std::vector<Value<T>>& _x, const T& _y) {
+    std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(pow(_x[i], _y));
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+pow(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<T>>>& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(pow(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+template <class T>
+inline
+std::vector<std::vector<Value<T>>>
+pow(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const T& _y
+) {
+    std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(pow(_x[i], _y));
+    }
+    return __k;
+}
+*/
+
+/*
+template <class T>
+inline
+Value<ptMgrad::complex<T>>
+pow(const Value<ptMgrad::complex<T>>& _x, const Value<ptMgrad::complex<T>>& _y) {
+    return Value<complex<T>>(std::pow(_x.dataX(), _y.dataX()));
+}
+
+template <class T>
+inline
+Value<ptMgrad::complex<T>>
+pow(const Value<ptMgrad::complex<T>>& _x, const T& _y) {
+    return Value<complex<T>>(std::pow(_x.dataX(), _y));
+}
+*/
 
 // neg
 
@@ -1169,8 +1242,7 @@ neg(const std::vector<Value<ptMgrad::complex<T>>>& _x) {
 
 // lt
 
-template <class T>    return Value<ptMgrad::complex<T>>(-_x.dataX());
-
+template <class T>
 inline
 bool
 lt(const Value<T>& _x, const Value<T>& _y) {
