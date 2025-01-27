@@ -2,13 +2,12 @@
 #define ARRAY_H
 
 #include <vector>
+#include <type_traits>
 
 #include "engine.h"
 
 
 namespace ptMgrad {
-
-// TODO: add initializer list
 
 // construct Array class
 template <class T>
@@ -29,6 +28,15 @@ private:
     }
 
 public:
+    // initializer list constructor
+    Array(std::initializer_list<T> list) : capacity(list.size()), _size(list.size()) {
+        data = new T[capacity];
+        size_t i = 0;
+        for (const auto& value : list) {
+            data[i++] = value;
+        }
+    }
+
     Array() : data(nullptr), capacity(0), _size(0) {}
 
     explicit Array(size_t n) : capacity(n), _size(0) {
@@ -140,6 +148,10 @@ public:
 };
 
 
+template <typename T, typename U>
+using ResultType = std::common_type_t<T, U>;
+
+
 template <typename T>
 Array<Value<T>>
 operator+ (const Array<Value<T>>& x, const Array<Value<T>>& y) {
@@ -148,6 +160,20 @@ operator+ (const Array<Value<T>>& x, const Array<Value<T>>& y) {
     }
 
     Array<Value<T>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] + y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+operator+ (const Array<Value<T>>& x, const Array<Value<U>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Value<ResultType<T, U>>> __k;
     for (size_t i = 0; i < x.size(); ++i) {
         __k.push_back(x[i] + y[i]);
     }
@@ -164,10 +190,98 @@ operator+ (const Array<Value<T>>& x, const T& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+operator+ (const Array<Value<T>>& x, const U& y) {
+    Array<Value<ResultType<T, U>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] + y);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator+ (const T& x, const Array<Value<T>>& y) {
     Array<Value<T>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x + y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator+ (const T& x, const Array<Value<U>>& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x + y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator+ (const Array<Array<Value<T>>>& x, const Array<Array<Value<T>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+	Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] + y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator+ (const Array<Array<Value<T>>>& x, const Array<Array<Value<U>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] + y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator+ (const Array<Array<Value<T>>>& x, const T& y) {
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] + y);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator+ (const Array<Array<Value<T>>>& x, const U& y) {
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+		__k.push_back(x[i] + y);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator+ (const T& x, const Array<Array<Value<T>>>& y) {
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x + y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator+ (const T& x, const Array<Array<Value<U>>>& y) {
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
     for (size_t i = 0; i < y.size(); ++i) {
         __k.push_back(x + y[i]);
     }
@@ -188,6 +302,20 @@ operator- (const Array<Value<T>>& x, const Array<Value<T>>& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator- (const Array<Value<T>>& x, const Array<Value<U>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] - y[i]);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator- (const Array<Value<T>>& x, const T& y) {
@@ -198,10 +326,98 @@ operator- (const Array<Value<T>>& x, const T& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator- (const Array<Value<T>>& x, const U& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] - y);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator- (const T& x, const Array<Value<T>>& y) {
     Array<Value<T>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x - y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator- (const T& x, const Array<Value<U>>& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x - y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator- (const Array<Array<Value<T>>>& x, const Array<Array<Value<T>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] - y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator- (const Array<Array<Value<T>>>& x, const Array<Array<Value<U>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] - y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator- (const Array<Array<Value<T>>>& x, const T& y) {
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] - y);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator- (const Array<Array<Value<T>>>& x, const U& y) {
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] - y);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator- (const T& x, const Array<Array<Value<T>>>& y) {
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x - y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator- (const T& x, const Array<Array<Value<U>>>& y) {
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
     for (size_t i = 0; i < y.size(); ++i) {
         __k.push_back(x - y[i]);
     }
@@ -222,6 +438,20 @@ operator* (const Array<Value<T>>& x, const Array<Value<T>>& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator* (const Array<Value<T>>& x, const Array<Value<U>>& y) {
+	if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] * y[i]);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator* (const Array<Value<T>>& x, const T& y) {
@@ -232,10 +462,98 @@ operator* (const Array<Value<T>>& x, const T& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator* (const Array<Value<T>>& x, const U& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] * y);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator* (const T& x, const Array<Value<T>>& y) {
     Array<Value<T>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x * y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator* (const T& x, const Array<Value<U>>& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x * y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator* (const Array<Array<Value<T>>>& x, const Array<Array<Value<T>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] * y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator* (const Array<Array<Value<T>>>& x, const Array<Array<Value<U>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] * y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator* (const Array<Array<Value<T>>>& x, const T& y) {
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] * y);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator* (const Array<Array<Value<T>>>& x, const U& y) {
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] * y);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator* (const T& x, const Array<Array<Value<T>>>& y) {
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x * y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator* (const T& x, const Array<Array<Value<U>>>& y) {
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
     for (size_t i = 0; i < y.size(); ++i) {
         __k.push_back(x * y[i]);
     }
@@ -256,10 +574,34 @@ operator/ (const Array<Value<T>>& x, const Array<Value<T>>& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator/ (const Array<Value<T>>& x, const Array<Value<U>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] / y[i]);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator/ (const Array<Value<T>>& x, const T& y) {
     Array<Value<T>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] / y);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator/ (const Array<Value<T>>& x, const U& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
     for (size_t i = 0; i < x.size(); ++i) {
         __k.push_back(x[i] / y);
     }
@@ -276,6 +618,44 @@ operator/ (const T& x, const Array<Value<T>>& y) {
     return __k;
 }
 
+template <typename T, typename U>
+Array<Value<std::common_type_t<T, U>>>
+operator/ (const T& x, const Array<Value<U>>& y) {
+    Array<Value<std::common_type_t<T, U>>> __k;
+    for (size_t i = 0; i < y.size(); ++i) {
+        __k.push_back(x / y[i]);
+    }
+    return __k;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+operator/ (const Array<Array<Value<T>>>& x, const Array<Array<Value<T>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<T>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] / y[i]);
+    }
+    return __k;
+}
+
+template <typename T, typename U>
+Array<Array<Value<std::common_type_t<T, U>>>>
+operator/ (const Array<Array<Value<T>>>& x, const Array<Array<Value<U>>>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Arrays must have the same size");
+    }
+
+    Array<Array<Value<std::common_type_t<T, U>>>> __k;
+    for (size_t i = 0; i < x.size(); ++i) {
+        __k.push_back(x[i] / y[i]);
+    }
+    return __k;
+}
+
 template <typename T>
 Array<Value<T>>
 operator- (const Array<Value<T>>& x) {
@@ -285,13 +665,152 @@ operator- (const Array<Value<T>>& x) {
     }
     return __k;
 }
-/*
+
 template <typename T>
 Array<Value<T>>
 add(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
     return _x + _y;
 }
-*/
+
+template <typename T>
+Array<Value<T>>
+add(const Array<Value<T>>& _x, const T& _y) {
+    return _x + _y;
+}
+
+template <typename T>
+Array<Value<T>>
+add(const T& _x, const Array<Value<T>>& _y) {
+    return _x + _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+add(const Array<Array<Value<T>>>& _x, const Array<Array<Value<T>>>& _y) {
+    return _x + _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+add(const Array<Array<Value<T>>>& _x, const T& _y) {
+    return _x + _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+add(const T& _x, const Array<Array<Value<T>>>& _y) {
+    return _x + _y;
+}
+
+template <typename T>
+Array<Value<T>>
+sub(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
+    return _x - _y;
+}
+
+template <typename T>
+Array<Value<T>>
+sub(const Array<Value<T>>& _x, const T& _y) {
+    return _x - _y;
+}
+
+template <typename T>
+Array<Value<T>>
+sub(const T& _x, const Array<Value<T>>& _y) {
+    return _x - _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+sub(const Array<Array<Value<T>>>& _x, const Array<Array<Value<T>>>& _y) {
+    return _x - _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+sub(const Array<Array<Value<T>>>& _x, const T& _y) {
+    return _x - _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+sub(const T& _x, const Array<Array<Value<T>>>& _y) {
+    return _x - _y;
+}
+
+template <typename T>
+Array<Value<T>>
+mul(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
+    return _x * _y;
+}
+
+template <typename T>
+Array<Value<T>>
+mul(const Array<Value<T>>& _x, const T& _y) {
+    return _x * _y;
+}
+
+template <typename T>
+Array<Value<T>>
+mul(const T& _x, const Array<Value<T>>& _y) {
+    return _x * _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+mul(const Array<Array<Value<T>>>& _x, const Array<Array<Value<T>>>& _y) {
+    return _x * _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+mul(const Array<Array<Value<T>>>& _x, const T& _y) {
+    return _x * _y;
+}
+
+template <typename T>
+Array<Array<Value<T>>>
+mul(const T& _x, const Array<Array<Value<T>>>& _y) {
+    return _x * _y;
+}
+
+template <typename T>
+Array<Value<T>>
+div(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
+    return _x / _y;
+}
+
+template <typename T>
+Array<Value<T>>
+div(const Array<Value<T>>& _x, const T& _y) {
+    return _x / _y;
+}
+
+template <typename T>
+Array<Value<T>>
+div(const T& _x, const Array<Value<T>>& _y) {
+    return _x / _y;
+}
+
+
+template <typename T>
+Array<Value<T>>
+rdiv(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
+    return _y / _x;
+}
+
+template <typename T>
+Array<Value<T>>
+rdiv(const Array<Value<T>>& _x, const T& _y) {
+    return _y / _x;
+}
+
+template <typename T>
+Array<Value<T>>
+rdiv(const T& _x, const Array<Value<T>>& _y) {
+    return _y / _x;
+}
+
 }
 
 #endif

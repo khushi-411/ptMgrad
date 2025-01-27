@@ -12,6 +12,7 @@
 #include <set>
 #include <functional>
 #include <cmath>
+#include <type_traits>
 
 #include "complex.h"
 
@@ -44,6 +45,9 @@ public:
 
     template <class _X> constexpr
     Value(const _X& _x, const _X& _y) : x(_x), y(_y) {}
+
+    template <class _X> constexpr
+    Value(const complex<_X>& _x) : x(_x.real()), y(_x.imag()) {}
 
     void add_child(const Value<T>* child) {
         children.push_back(const_cast<Value<T>*>(child));
@@ -129,8 +133,32 @@ public:
     }
 
     template <class _X> constexpr
+    Value& operator+ (const Value<_X>& x) {
+        this->x += x.dataX();
+        return *this;
+    }
+
+    template <class _X> constexpr
+    Value& operator+ (const _X& x) {
+        this->x += x;
+        return *this;
+    }
+
+    template <class _X> constexpr
+    Value& operator- (const Value<_X>& x) {
+        this->x -= x.dataX();
+        return *this;
+    }
+
+    template <class _X> constexpr
+    Value& operator- (const _X& x) {
+        this->x -= x;
+        return *this;
+    }
+
+    template <class _X> constexpr
     Value& operator+= (const Value<_X>& x) {
-        this->x += x.x;
+        this->x += x.dataX();
         return *this;
     }
 
@@ -142,7 +170,7 @@ public:
 
     template <class _X> constexpr
     Value& operator-= (const Value<_X>& x) {
-        this->x -= x.x;
+        this->x -= x.dataX();
         return *this;
     }
 
@@ -154,7 +182,7 @@ public:
 
     template <class _X> constexpr
     Value& operator*= (const Value<_X>& x) {
-        this->x *= x.x;
+        this->x *= x.dataX();
         return *this;
     }
 
@@ -166,7 +194,7 @@ public:
 
     template <class _X> constexpr
     Value& operator/= (const Value<_X>& x) {
-        this->x /= x.x;
+        this->x /= x.dataX();
         return *this;
     }
 
@@ -195,6 +223,15 @@ public:
     }
 };
 
+template <typename T>
+struct is_complex : std::false_type {};
+
+template <typename T>
+struct is_complex<complex<T>> : std::true_type {};
+
+template <typename T>
+inline constexpr bool is_complex_v = is_complex<T>::value;
+
 
 // template <typename T>
 // T add_grad(const T& v, const T& _grad) {
@@ -204,13 +241,17 @@ public:
 // }
 
 
+template <class T, class U>
+using ResultType = std::common_type_t<T, U>;
+
+
 template <class T>
 inline
 Value <T>
 operator+ (const Value<T>& x, const Value<T>& y) {
-    Value<T> __k = x;
+	Value<T> __k = x;
     __k += y;
-    
+
     __k.add_child(&x);
     __k.add_child(&y);
 
@@ -224,30 +265,50 @@ operator+ (const Value<T>& x, const Value<T>& y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator+ (const Value<T>& x, const Value<U>& y) {
+    Value<ResultType<T, U>> __k = x;
+    __k += y;
+
+    //__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+    //__k.add_child(static_cast<Value<ResultType<T, U>>*>(&y));
+
+    //__k.set_backward([&x, &y, &__k]() {
+    //    x.add_grad(__k.get_grad());
+    //    y.add_grad(__k.get_grad());
+    //});
+
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
 operator+ (const Value<T>& x, const T& y) {
-    Value<T> __k = x;
+	Value<T> __k = x;
     __k += y;
 
     __k.add_child(&x);
 
     __k.set_backward([&x, &y, &__k]() {
-        // x.grad = add_grad(x.get_grad(), __k.get_grad());
+    	// x.grad = add_grad(x.get_grad(), __k.get_grad());
         x.add_grad(__k.get_grad());
     });
 
     return __k;
 }
 
+
 template <class T>
 inline
 Value <T>
 operator+ (const T& x, const T& y) {
-    Value<T> __k = x;
+	Value<T> __k = x;
     __k += y;
-    return __k;
+    return x + y;
 }
 
 

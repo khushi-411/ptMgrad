@@ -14,7 +14,7 @@ TEST(ValueTest, ComplexAdd) {
     Value<complex<float>> a(complex<float>(1.0f, 2.0f));
     Value<complex<float>> b(complex<float>(3.0f, 4.0f));
 
-    Value<complex<float>> c = ptMgrad::add(a.dataX(), b.dataX());
+    Value<complex<float>> c = ptMgrad::add(a, b);
 
     EXPECT_EQ(c.dataX().real(), 4.0f);
     EXPECT_EQ(c.dataX().imag(), 6.0f);
@@ -82,7 +82,6 @@ TEST(ValueTest, ComplexAddVector) {
     EXPECT_EQ(c[1].dataX().real(), result[1].dataX().real());
     EXPECT_EQ(c[1].dataX().imag(), result[1].dataX().imag());
 }
-
 
 TEST(ValueTest, ComplexAddVectorScalar) {
     std::vector<Value<complex<float>>> a = {

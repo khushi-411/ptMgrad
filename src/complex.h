@@ -21,13 +21,13 @@ public:
     template <class _X> constexpr
     complex(const complex<_X>& __c) : __re_(__c.real()), __im_(__c.imag()) {}
 
-    template <class _X> constexpr
-    _X real() const {
+    // template <class _X> constexpr
+    T constexpr real() const {
         return __re_;
     }
 
-    template <class _X> constexpr
-    _X imag() const {
+    // template <class _X> constexpr
+    T constexpr imag() const {
         return __im_;
     }
 

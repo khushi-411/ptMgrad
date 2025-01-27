@@ -36,6 +36,7 @@ TEST(ValueTest, FloatAdd) {
     Value<float> c = ptMgrad::add(a, b);
 
     EXPECT_EQ(c.dataX(), 5.0f);
+    EXPECT_EQ(c.gradX(), 0.0f);
 }
 
 // for double x double operations
