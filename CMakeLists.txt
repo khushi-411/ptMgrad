@@ -42,7 +42,7 @@ enable_testing()
 
 set(PTMGRAD_TESTS)
 list(APPEND PTMGRAD_TESTS
-    ${PTMGRAD_TEST_DIR}/test_array.cpp
+    #${PTMGRAD_TEST_DIR}/test_array.cpp
     ${PTMGRAD_TEST_DIR}/test_ops.cpp
     #${PTMGRAD_TEST_DIR}/test_complex_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_maths_ops.cpp

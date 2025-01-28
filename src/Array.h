@@ -672,9 +672,21 @@ add(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
     return _x + _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+add(const Array<Value<T>>& _x, const Array<Value<U>>& _y) {
+    return _x + _y;
+}
+
 template <typename T>
 Array<Value<T>>
 add(const Array<Value<T>>& _x, const T& _y) {
+    return _x + _y;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+add(const Array<Value<T>>& _x, const U& _y) {
     return _x + _y;
 }
 
@@ -684,9 +696,21 @@ add(const T& _x, const Array<Value<T>>& _y) {
     return _x + _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+add(const T& _x, const Array<Value<U>>& _y) {
+    return _x + _y;
+}
+
 template <typename T>
 Array<Array<Value<T>>>
 add(const Array<Array<Value<T>>>& _x, const Array<Array<Value<T>>>& _y) {
+    return _x + _y;
+}
+
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+add(const Array<Array<Value<T>>>& _x, const Array<Array<Value<U>>>& _y) {
     return _x + _y;
 }
 
@@ -696,9 +720,21 @@ add(const Array<Array<Value<T>>>& _x, const T& _y) {
     return _x + _y;
 }
 
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+add(const Array<Array<Value<T>>>& _x, const U& _y) {
+    return _x + _y;
+}
+
 template <typename T>
 Array<Array<Value<T>>>
 add(const T& _x, const Array<Array<Value<T>>>& _y) {
+    return _x + _y;
+}
+
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+add(const T& _x, const Array<Array<Value<U>>>& _y) {
     return _x + _y;
 }
 
@@ -708,9 +744,21 @@ sub(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
     return _x - _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+sub(const Array<Value<T>>& _x, const Array<Value<U>>& _y) {
+    return _x - _y;
+}
+
 template <typename T>
 Array<Value<T>>
 sub(const Array<Value<T>>& _x, const T& _y) {
+    return _x - _y;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+sub(const Array<Value<T>>& _x, const U& _y) {
     return _x - _y;
 }
 
@@ -720,9 +768,21 @@ sub(const T& _x, const Array<Value<T>>& _y) {
     return _x - _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+sub(const T& _x, const Array<Value<U>>& _y) {
+    return _x - _y;
+}
+
 template <typename T>
 Array<Array<Value<T>>>
 sub(const Array<Array<Value<T>>>& _x, const Array<Array<Value<T>>>& _y) {
+    return _x - _y;
+}
+
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+sub(const Array<Array<Value<T>>>& _x, const Array<Array<Value<U>>>& _y) {
     return _x - _y;
 }
 
@@ -732,9 +792,21 @@ sub(const Array<Array<Value<T>>>& _x, const T& _y) {
     return _x - _y;
 }
 
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+sub(const Array<Array<Value<T>>>& _x, const U& _y) {
+    return _x - _y;
+}
+
 template <typename T>
 Array<Array<Value<T>>>
 sub(const T& _x, const Array<Array<Value<T>>>& _y) {
+    return _x - _y;
+}
+
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+sub(const T& _x, const Array<Array<Value<U>>>& _y) {
     return _x - _y;
 }
 
@@ -744,9 +816,21 @@ mul(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
     return _x * _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+mul(const Array<Value<T>>& _x, const Array<Value<U>>& _y) {
+    return _x * _y;
+}
+
 template <typename T>
 Array<Value<T>>
 mul(const Array<Value<T>>& _x, const T& _y) {
+    return _x * _y;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+mul(const Array<Value<T>>& _x, const U& _y) {
     return _x * _y;
 }
 
@@ -756,9 +840,21 @@ mul(const T& _x, const Array<Value<T>>& _y) {
     return _x * _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+mul(const T& _x, const Array<Value<U>>& _y) {
+    return _x * _y;
+}
+
 template <typename T>
 Array<Array<Value<T>>>
 mul(const Array<Array<Value<T>>>& _x, const Array<Array<Value<T>>>& _y) {
+    return _x * _y;
+}
+
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+mul(const Array<Array<Value<T>>>& _x, const Array<Array<Value<U>>>& _y) {
     return _x * _y;
 }
 
@@ -768,9 +864,21 @@ mul(const Array<Array<Value<T>>>& _x, const T& _y) {
     return _x * _y;
 }
 
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+mul(const Array<Array<Value<T>>>& _x, const U& _y) {
+    return _x * _y;
+}
+
 template <typename T>
 Array<Array<Value<T>>>
 mul(const T& _x, const Array<Array<Value<T>>>& _y) {
+    return _x * _y;
+}
+
+template <typename T, typename U>
+Array<Array<Value<ResultType<T, U>>>>
+mul(const T& _x, const Array<Array<Value<U>>>& _y) {
     return _x * _y;
 }
 
@@ -780,9 +888,21 @@ div(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
     return _x / _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+div(const Array<Value<T>>& _x, const Array<Value<U>>& _y) {
+    return _x / _y;
+}
+
 template <typename T>
 Array<Value<T>>
 div(const Array<Value<T>>& _x, const T& _y) {
+    return _x / _y;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+div(const Array<Value<T>>& _x, const U& _y) {
     return _x / _y;
 }
 
@@ -792,10 +912,21 @@ div(const T& _x, const Array<Value<T>>& _y) {
     return _x / _y;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+div(const T& _x, const Array<Value<U>>& _y) {
+    return _x / _y;
+}
 
 template <typename T>
 Array<Value<T>>
 rdiv(const Array<Value<T>>& _x, const Array<Value<T>>& _y) {
+    return _y / _x;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+rdiv(const Array<Value<T>>& _x, const Array<Value<U>>& _y) {
     return _y / _x;
 }
 
@@ -805,9 +936,21 @@ rdiv(const Array<Value<T>>& _x, const T& _y) {
     return _y / _x;
 }
 
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+rdiv(const Array<Value<T>>& _x, const U& _y) {
+    return _y / _x;
+}
+
 template <typename T>
 Array<Value<T>>
 rdiv(const T& _x, const Array<Value<T>>& _y) {
+    return _y / _x;
+}
+
+template <typename T, typename U>
+Array<Value<ResultType<T, U>>>
+rdiv(const T& _x, const Array<Value<U>>& _y) {
     return _y / _x;
 }
 

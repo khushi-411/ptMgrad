@@ -302,6 +302,24 @@ operator+ (const Value<T>& x, const T& y) {
 }
 
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator+ (const Value<T>& x, const U& y) {
+	Value<ResultType<T, U>> __k = x;
+    __k += y;
+
+    //__k.add_child(&x);
+
+    //__k.set_backward([&x, &y, &__k]() {
+    // x.grad = add_grad(x.get_grad(), __k.get_grad());
+    //    x.add_grad(__k.get_grad());
+    //});
+
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
@@ -309,6 +327,16 @@ operator+ (const T& x, const T& y) {
 	Value<T> __k = x;
     __k += y;
     return x + y;
+}
+
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator+ (const T& x, const U& y) {
+	Value<ResultType<T, U>> __k = x;
+    __k += y;
+    return __k;
 }
 
 
@@ -329,6 +357,7 @@ operator+ (const Value<complex<T>>& x, const Value<complex<T>>& y) {
 
     return __k;
 }
+
 
 template <class T>
 inline
@@ -381,6 +410,26 @@ operator- (const Value<T>& x, const Value<T>& y) {
     return __k;
 }
 
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator- (const Value<T>& x, const Value<U>& y) {
+    Value<ResultType<T, U>> __k = x;
+    __k -= y;
+
+    //__k.add_child(&x);
+    //__k.add_child(&y);
+
+    //__k.set_backward([&x, &y, &__k]() {
+    //    x.add_grad(__k.get_grad());
+    //    y.add_grad(__k.get_grad());
+    //});
+
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
@@ -397,11 +446,37 @@ operator- (const Value<T>& x, const T& y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator- (const Value<T>& x, const U& y) {
+    Value<ResultType<T, U>> __k = x;
+    __k -= y;
+
+    //__k.add_child(&x);
+
+    //__k.set_backward([&x, &y, &__k]() {
+    //    x.add_grad(__k.get_grad());
+    //});
+
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
 operator- (const T& x, const T& y) {
     Value<T> __k = x;
+    __k -= y;
+    return __k;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator- (const T& x, const U& y) {
+    Value<ResultType<T, U>> __k = x;
     __k -= y;
     return __k;
 }
@@ -424,6 +499,7 @@ operator- (const Value<complex<T>>& x, const Value<complex<T>>& y) {
 
     return __k;
 }
+
 
 template <class T>
 inline
@@ -476,6 +552,26 @@ operator* (const Value<T>& x, const Value<T>& y) {
     return __k;
 }
 
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator* (const Value<T>& x, const Value<U>& y) {
+    Value<ResultType<T, U>> __k = x;
+    __k *= y;
+
+    //__k.add_child(&x);
+    //__k.add_child(&y);
+
+    //__k.set_backward([&x, &y, &__k]() {
+    //    x.add_grad(__k.get_grad() * y);
+    //    y.add_grad(__k.get_grad() * x);
+    //});
+
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
@@ -492,11 +588,38 @@ operator* (const Value<T>& x, const T& y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator* (const Value<T>& x, const U& y) {
+    Value<ResultType<T, U>> __k = x;
+    __k *= y;
+
+    //__k.add_child(&x);
+
+    //__k.set_backward([&x, &y, &__k]() {
+    //    x.add_grad(__k.get_grad() * y);
+    //});
+
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
 operator* (const T& x, const T& y) {
     Value<T> __k = x;
+    __k *= y;
+    return __k;
+}
+
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator* (const T& x, const U& y) {
+    Value<ResultType<T, U>> __k = x;
     __k *= y;
     return __k;
 }
@@ -558,25 +681,80 @@ template <class T>
 inline
 Value <T>
 operator/ (const Value<T>& x, const Value<T>& y) {
+    if (y.dataX() == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
     Value<T> __k = x;
     __k /= y;
     return __k;
 }
+
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator/ (const Value<T>& x, const Value<U>& y) {
+    if (y.dataX() == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
+    Value<ResultType<T, U>> __k = x;
+    __k /= y;
+    return __k;
+}
+
 
 template <class T>
 inline
 Value <T>
 operator/ (const Value<T>& x, const T& y) {
+    if (y == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
     Value<T> __k = x;
     __k /= y;
     return __k;
 }
 
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator/ (const Value<T>& x, const U& y) {
+    if (y == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
+    Value<ResultType<T, U>> __k = x;
+    __k /= y;
+    return __k;
+}
+
+
 template <class T>
 inline
 Value <T>
 operator/ (const T& x, const T& y) {
+    if (y == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
     Value<T> __k = x;
+    __k /= y;
+    return __k;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+operator/ (const T& x, const U& y) {
+    if (y == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
+    Value<ResultType<T, U>> __k = x;
     __k /= y;
     return __k;
 }
@@ -586,6 +764,10 @@ template <class T>
 inline
 Value <T>
 operator/ (const Value<complex<T>>& x, const Value<complex<T>>& y) {
+    if (y.dataX() == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
     Value<complex<T>> __k = x;
     __k /= y;
     return __k;
@@ -596,6 +778,10 @@ template <class T>
 inline
 Value <T>
 operator/ (const complex<T>& x, const Value<complex<T>>& y) {
+    if (y.dataX() == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
     Value<complex<T>> __k = x;
     __k /= y;
     return __k;
@@ -605,6 +791,10 @@ template <class T>
 inline
 Value <T>
 operator/ (const Value<complex<T>>& x, const complex<T>& y) {
+    if (y == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
     Value<complex<T>> __k = x;
     __k /= y;
     return __k;
@@ -665,10 +855,24 @@ add(const Value<T>& _x, const Value<T>& _y) {
     return _x + _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+add(const Value<T>& _x, const Value<U>& _y) {
+    return _x + _y;
+}
+
 template <class T>
 inline
 Value <T>
 add(const Value<T>& _x, const T& _y) {
+    return _x + _y;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+add(const Value<T>& _x, const U& _y) {
     return _x + _y;
 }
 
@@ -679,11 +883,21 @@ add(const T& _x, const T& _y) {
     return _x + _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+add(const T& _x, const U& _y) {
+    return _x + _y;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 add(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -692,13 +906,40 @@ add(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+add(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
 
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] + _y[i]);
+    }
+    return __k;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 add(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] + _y);
+    }
+    return __k;
+}
+
+
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+add(const std::vector<Value<T>>& _x, const U& _y) {
+    std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(_x[i] + _y);
@@ -714,7 +955,31 @@ add(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(add(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+add(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<U>>>& _y
+) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(add(_x[i], _y[i]));
@@ -731,6 +996,22 @@ add(
     const T& _y
 ) {
     std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(add(_x[i], _y));
+    }
+    return __k;
+}
+
+
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+add(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const U& _y
+) {
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(add(_x[i], _y));
@@ -771,10 +1052,24 @@ sub(const Value<T>& _x, const Value<T>& _y) {
     return _x - _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+sub(const Value<T>& _x, const Value<U>& _y) {
+    return _x - _y;
+}
+
 template <class T>
 inline
 Value <T>
 sub(const Value<T>& _x, const T& _y) {
+    return _x - _y;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+sub(const Value<T>& _x, const U& _y) {
     return _x - _y;
 }
 
@@ -785,12 +1080,40 @@ sub(const T& _x, const T& _y) {
     return _x - _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+sub(const T& _x, const U& _y) {
+    return _x - _y;
+}
+
 
 template <class T>
 inline
 std::vector<Value<T>>
 sub(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] - _y[i]);
+    }
+    return __k;
+}
+
+
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+sub(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(_x[i] - _y[i]);
@@ -812,6 +1135,19 @@ sub(const std::vector<Value<T>>& _x, const T& _y) {
 }
 
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+sub(const std::vector<Value<T>>& _x, const U& _y) {
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] - _y);
+    }
+    return __k;
+}
+
+
 template <class T>
 inline
 std::vector<std::vector<Value<T>>>
@@ -819,7 +1155,31 @@ sub(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(sub(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+sub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<U>>>& _y
+) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(sub(_x[i], _y[i]));
@@ -844,12 +1204,35 @@ sub(
 }
 
 
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+sub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const U& _y
+) {
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(sub(_x[i], _y));
+    }
+    return __k;
+}
+
+
 // rsub
 
 template <class T>
 inline
 Value <T>
 rsub(const Value<T>& _x, const Value<T>& _y) {
+    return _y - _x;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+rsub(const Value<T>& _x, const Value<U>& _y) {
     return _y - _x;
 }
 
@@ -860,6 +1243,13 @@ rsub(const Value<T>& _x, const T& _y) {
     return _y - _x.dataX();
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+rsub(const Value<T>& _x, const U& _y) {
+    return _y - _x.dataX();
+}
+
 template <class T>
 inline
 Value <T>
@@ -867,11 +1257,21 @@ rsub(const T& _x, const T& _y) {
     return _y - _x;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+rsub(const T& _x, const U& _y) {
+    return _y - _x;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 rsub(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -880,6 +1280,21 @@ rsub(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+rsub(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y[i] - _x[i]);
+    }
+    return __k;
+}
 
 template <class T>
 inline
@@ -893,6 +1308,17 @@ rsub(const std::vector<Value<T>>& _x, const T& _y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+rsub(const std::vector<Value<T>>& _x, const U& _y) {
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y - _x[i]);
+    }
+    return __k;
+}
 
 template <class T>
 inline
@@ -901,7 +1327,30 @@ rsub(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(rsub(_x[i], _y[i]));
+    }
+    return __k;
+}
+
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+rsub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<U>>>& _y
+) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(rsub(_x[i], _y[i]));
@@ -926,12 +1375,35 @@ rsub(
 }
 
 
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+rsub(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const U& _y
+) {
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(rsub(_x[i], _y));
+    }
+    return __k;
+}
+
+
 // mul
 
 template <class T>
 inline
 Value <T>
 mul(const Value<T>& _x, const Value<T>& _y) {
+    return _x * _y;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+mul(const Value<T>& _x, const Value<U>& _y) {
     return _x * _y;
 }
 
@@ -942,6 +1414,13 @@ mul(const Value<T>& _x, const T& _y) {
     return _x * _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+mul(const Value<T>& _x, const U& _y) {
+    return _x * _y;
+}
+
 template <class T>
 inline
 Value <T>
@@ -949,11 +1428,21 @@ mul(const T& _x, const T& _y) {
     return _x * _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+mul(const T& _x, const U& _y) {
+    return _x * _y;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 mul(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -962,12 +1451,39 @@ mul(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+mul(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] * _y[i]);
+    }
+    return __k;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 mul(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] * _y);
+    }
+    return __k;
+}
+
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+mul(const std::vector<Value<T>>& _x, const U& _y) {
+    std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(_x[i] * _y);
@@ -982,6 +1498,10 @@ mul(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<Value<T>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -990,6 +1510,24 @@ mul(
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+mul(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<U>>>& _y
+) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(mul(_x[i], _y[i]));
+    }
+    return __k;
+}
 
 template <class T>
 inline
@@ -1006,6 +1544,21 @@ mul(
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+mul(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const U& _y
+) {
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
+    __k.reserve(_x.size());
+    for (int i = 0; i < _x.size(); ++i) {
+        __k.push_back(mul(_x[i], _y));
+    }
+    return __k;
+}
+
 
 // div
 
@@ -1016,10 +1569,24 @@ div(const Value<T>& _x, const Value<T>& _y) {
     return _x / _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+div(const Value<T>& _x, const Value<U>& _y) {
+    return _x / _y;
+}
+
 template <class T>
 inline
 Value <T>
 div(const Value<T>& _x, const T& _y) {
+    return _x / _y;
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+div(const Value<T>& _x, const U& _y) {
     return _x / _y;
 }
 
@@ -1030,11 +1597,21 @@ div(const T& _x, const T& _y) {
     return _x / _y;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+div(const T& _x, const U& _y) {
+    return _x / _y;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 div(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -1043,12 +1620,39 @@ div(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+div(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] / _y[i]);
+    }
+    return __k;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 div(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_x[i] / _y);
+    }
+    return __k;
+}
+
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+div(const std::vector<Value<T>>& _x, const U& _y) {
+    std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(_x[i] / _y);
@@ -1063,6 +1667,10 @@ div(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<Value<T>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -1071,6 +1679,24 @@ div(
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+div(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const std::vector<std::vector<Value<U>>>& _y
+) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+	std::vector<std::vector<Value<ResultType<T, U>>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(div(_x[i], _y[i]));
+    }
+    return __k;
+}
 
 template <class T>
 inline
@@ -1080,6 +1706,21 @@ div(
     const T& _y
 ) {
     std::vector<std::vector<Value<T>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(div(_x[i], _y));
+    }
+    return __k;
+}
+
+template <class T, class U>
+inline
+std::vector<std::vector<Value<ResultType<T, U>>>>
+div(
+    const std::vector<std::vector<Value<T>>>& _x,
+    const U& _y
+) {
+    std::vector<std::vector<Value<ResultType<T, U>>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(div(_x[i], _y));
@@ -1097,10 +1738,24 @@ rdiv(const Value<T>& _x, const Value<T>& _y) {
     return _y / _x;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+rdiv(const Value<T>& _x, const Value<U>& _y) {
+    return _y / _x;
+}
+
 template <class T>
 inline
 Value <T>
 rdiv(const Value<T>& _x, const T& _y) {
+    return _y / _x.dataX();
+}
+
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+rdiv(const Value<T>& _x, const U& _y) {
     return _y / _x.dataX();
 }
 
@@ -1111,10 +1766,21 @@ rdiv(const T& _x, const T& _y) {
     return _y / _x;
 }
 
+template <class T, class U>
+inline
+Value <ResultType<T, U>>
+rdiv(const T& _x, const U& _y) {
+    return _y / _x;
+}
+
 template <class T>
 inline
 std::vector<Value<T>>
 rdiv(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -1123,12 +1789,39 @@ rdiv(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     return __k;
 }
 
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+rdiv(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
+    std::vector<Value<ResultType<T, U>>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y[i] / _x[i]);
+    }
+    return __k;
+}
 
 template <class T>
 inline
 std::vector<Value<T>>
 rdiv(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<Value<T>> __k;
+    __k.reserve(_x.size());
+    for (size_t i = 0; i < _x.size(); ++i) {
+        __k.push_back(_y / _x[i]);
+    }
+    return __k;
+}
+
+template <class T, class U>
+inline
+std::vector<Value<ResultType<T, U>>>
+rdiv(const std::vector<Value<T>>& _x, const U& _y) {
+    std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
         __k.push_back(_y / _x[i]);
@@ -1328,6 +2021,10 @@ template <class T>
 inline
 std::vector<bool>
 lt(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<bool> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -1355,6 +2052,10 @@ lt(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<bool>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -1406,6 +2107,10 @@ template <class T>
 inline
 std::vector<bool>
 gt(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<bool> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -1433,6 +2138,10 @@ gt(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<bool>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {

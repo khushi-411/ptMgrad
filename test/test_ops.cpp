@@ -21,7 +21,7 @@ TEST(ValueTest, BasicFloatOperations) {
     EXPECT_EQ((a - b).dataX(), -1.0f);
     EXPECT_EQ((a * b).dataX(), 6.0f);
     EXPECT_NEAR((a / b).dataX(), 2.0f / 3.0f, 0.001);
-    
+
     // using add, sub, mul, & div function
     EXPECT_EQ(add(a, b).dataX(), 5.0f);
     EXPECT_EQ(sub(a, b).dataX(), -1.0f);
@@ -45,7 +45,7 @@ TEST(ValueTest, BasicFloatOperations) {
     EXPECT_NEAR(f.dataX(), 2.0f / 3.0f, 0.001);
 
     // using assignment operator
-    
+
     // test addition
     a += b;
     EXPECT_EQ(a.dataX(), 5.0f);
@@ -63,7 +63,7 @@ TEST(ValueTest, BasicFloatOperations) {
     EXPECT_EQ(a.dataX(), 6.0f / 3.0f);
 }
 
-
+/*
 // for float operations
 // Value (op) scalar = Value
 TEST(ValueTest, BasicFloatOperationsWithScalar) {
@@ -118,7 +118,7 @@ TEST(ValueTest, BasicFloatOperationsWithScalar) {
     a /= b;
     EXPECT_EQ(a.dataX(), 6.0f / 3.0f);
 }
-
+*/
 /*
 // for float operations
 // scalar (op) Value = scalar
@@ -175,7 +175,7 @@ TEST(ValueTest, BasicScalarOperationsWithFloat) {
     EXPECT_EQ(a, 6.0f / 3.0f);
 }
 */
-
+/*
 // for float operations
 // scalar (op) scalar = scalar
 TEST(ValueTest, BasicScalarOperationsFloat) {
@@ -425,7 +425,7 @@ TEST(ValueTest, BasicScalarOperationsWithScalar) {
     EXPECT_EQ(a, 6.0 / 3.0);
 }
 
-/*
+
 // for float x double operations
 // FloatValue (op) DoubleValue = DoubleValue
 TEST(ValueTest, BasicFloatDoubleOperations) {

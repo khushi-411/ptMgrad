@@ -337,6 +337,12 @@ TEST_ARRAY_2D_POPBACK(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(c[0].dataX(), TYPE(7.0));                  \
         EXPECT_EQ(c[1].dataX(), TYPE(9.0));                  \
         EXPECT_EQ(c[2].dataX(), TYPE(11.0));                 \
+                                                             \
+        Array<Value<TYPE>> d = ptMgrad::add(a, b);           \
+                                                             \
+        EXPECT_EQ(d[0].dataX(), TYPE(7.0));                  \
+        EXPECT_EQ(d[1].dataX(), TYPE(9.0));                  \
+        EXPECT_EQ(d[2].dataX(), TYPE(11.0));                 \
     }
 
 TEST_ARRAY_ADD(float, Float)
@@ -424,6 +430,12 @@ TEST_ARRAY_2D_ADD_FUNC(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(c[0].dataX(), TYPE(3.0));                  \
         EXPECT_EQ(c[1].dataX(), TYPE(5.0));                  \
         EXPECT_EQ(c[2].dataX(), TYPE(7.0));                  \
+                                                             \
+        Array<Value<TYPE>> d = ptMgrad::sub(a, b);           \
+                                                             \
+        EXPECT_EQ(d[0].dataX(), TYPE(3.0));                  \
+        EXPECT_EQ(d[1].dataX(), TYPE(5.0));                  \
+        EXPECT_EQ(d[2].dataX(), TYPE(7.0));                  \
     }
 
 TEST_ARRAY_SUB(float, Float)
@@ -481,6 +493,12 @@ TEST_ARRAY_2D_SUB(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(b[0].dataX(), TYPE(1.0));                       \
         EXPECT_EQ(b[1].dataX(), TYPE(2.0));                       \
         EXPECT_EQ(b[2].dataX(), TYPE(3.0));                       \
+                                                                  \
+        Array<Value<TYPE>> c = a - TYPE(1.0);                     \
+                                                                  \
+        EXPECT_EQ(c[0].dataX(), TYPE(1.0));                       \
+        EXPECT_EQ(c[1].dataX(), TYPE(2.0));                       \
+        EXPECT_EQ(c[2].dataX(), TYPE(3.0));                       \
     }
 
 TEST_ARRAY_SUB_SCALAR_FUNC(float, Float)
@@ -507,6 +525,12 @@ TEST_ARRAY_SUB_SCALAR_FUNC(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(c[0].dataX(), TYPE(10.0));                 \
         EXPECT_EQ(c[1].dataX(), TYPE(18.0));                 \
         EXPECT_EQ(c[2].dataX(), TYPE(28.0));                 \
+                                                             \
+        Array<Value<TYPE>> d = ptMgrad::mul(a, b);           \
+                                                             \
+        EXPECT_EQ(d[0].dataX(), TYPE(10.0));                 \
+        EXPECT_EQ(d[1].dataX(), TYPE(18.0));                 \
+        EXPECT_EQ(d[2].dataX(), TYPE(28.0));                 \
     }
 
 TEST_ARRAY_MUL(float, Float)
@@ -568,6 +592,12 @@ TEST_ARRAY_2D_MUL(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(c[0].dataX(), TYPE(2.0 / 5.0));            \
         EXPECT_EQ(c[1].dataX(), TYPE(3.0 / 2.0));            \
         EXPECT_EQ(c[2].dataX(), TYPE(4.0 / 2.0));            \
+                                                             \
+        Array<Value<TYPE>> d = ptMgrad::div(a, b);           \
+                                                             \
+        EXPECT_EQ(d[0].dataX(), TYPE(2.0 / 5.0));            \
+        EXPECT_EQ(d[1].dataX(), TYPE(3.0 / 2.0));            \
+        EXPECT_EQ(d[2].dataX(), TYPE(4.0 / 2.0));            \
     }
 
 TEST_ARRAY_DIV(float, Float)
@@ -624,6 +654,12 @@ TEST_ARRAY_2D_DIV(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(b[0].dataX(), TYPE(3.0));                       \
         EXPECT_EQ(b[1].dataX(), TYPE(4.0));                       \
         EXPECT_EQ(b[2].dataX(), TYPE(5.0));                       \
+                                                                  \
+        Array<Value<TYPE>> c = a + TYPE(1.0);                     \
+                                                                  \
+        EXPECT_EQ(c[0].dataX(), TYPE(3.0));                       \
+        EXPECT_EQ(c[1].dataX(), TYPE(4.0));                       \
+        EXPECT_EQ(c[2].dataX(), TYPE(5.0));                       \
     }
 
 TEST_ARRAY_ADD_SCALAR_FUNC(float, Float)
@@ -652,6 +688,15 @@ TEST_ARRAY_ADD_SCALAR_FUNC(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(c[1][0].dataX(), TYPE(3.0));                           \
         EXPECT_EQ(c[1][1].dataX(), TYPE(4.0));                           \
         EXPECT_EQ(c[1][2].dataX(), TYPE(5.0));                           \
+                                                                         \
+        Array<Array<Value<TYPE>>> d = b + TYPE(1.0);                     \
+                                                                         \
+		EXPECT_EQ(d[0][0].dataX(), TYPE(3.0));                           \
+        EXPECT_EQ(d[0][1].dataX(), TYPE(4.0));                           \
+        EXPECT_EQ(d[0][2].dataX(), TYPE(5.0));                           \
+        EXPECT_EQ(d[1][0].dataX(), TYPE(3.0));                           \
+        EXPECT_EQ(d[1][1].dataX(), TYPE(4.0));                           \
+        EXPECT_EQ(d[1][2].dataX(), TYPE(5.0));                           \
     }
 
 TEST_ARRAY_2D_ADD_FUNC2(float, Float)
@@ -673,6 +718,12 @@ TEST_ARRAY_2D_ADD_FUNC2(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(b[0].dataX(), TYPE(1.0));                       \
         EXPECT_EQ(b[1].dataX(), TYPE(2.0));                       \
         EXPECT_EQ(b[2].dataX(), TYPE(3.0));                       \
+                                                                  \
+        Array<Value<TYPE>> c = a - TYPE(1.0);                     \
+                                                                  \
+        EXPECT_EQ(c[0].dataX(), TYPE(1.0));                       \
+        EXPECT_EQ(c[1].dataX(), TYPE(2.0));                       \
+        EXPECT_EQ(c[2].dataX(), TYPE(3.0));                       \
     }
 
 TEST_ARRAY_SUB_SCALAR_FUNC(float, Float)
@@ -694,6 +745,12 @@ TEST_ARRAY_SUB_SCALAR_FUNC(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(b[0].dataX(), TYPE(4.0));                       \
         EXPECT_EQ(b[1].dataX(), TYPE(6.0));                       \
         EXPECT_EQ(b[2].dataX(), TYPE(8.0));                       \
+                                                                  \
+        Array<Value<TYPE>> c = a * TYPE(2.0);                     \
+                                                                  \
+        EXPECT_EQ(c[0].dataX(), TYPE(4.0));                       \
+        EXPECT_EQ(c[1].dataX(), TYPE(6.0));                       \
+        EXPECT_EQ(c[2].dataX(), TYPE(8.0));                       \
     }
 
 TEST_ARRAY_MUL_SCALAR_FUNC(float, Float)
@@ -715,6 +772,12 @@ TEST_ARRAY_MUL_SCALAR_FUNC(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(b[0].dataX(), TYPE(1.0));                       \
         EXPECT_EQ(b[1].dataX(), TYPE(1.5));                       \
         EXPECT_EQ(b[2].dataX(), TYPE(2.0));                       \
+                                                                  \
+        Array<Value<TYPE>> c = a / TYPE(2.0);                     \
+                                                                  \
+        EXPECT_EQ(c[0].dataX(), TYPE(1.0));                       \
+        EXPECT_EQ(c[1].dataX(), TYPE(1.5));                       \
+        EXPECT_EQ(c[2].dataX(), TYPE(2.0));                       \
     }
 
 TEST_ARRAY_DIV_SCALAR_FUNC(float, Float)
@@ -750,7 +813,7 @@ TEST_ARRAY_NEG_FUNC(ptMgrad::complex<double>, ComplexDouble)
 
 
 #define TEST_ARRAY_DIFF_TYPES_ADD(TYPE1, TYPE2, NAME1, NAME2)                 \
-    TEST(ValueTest, Array##NAME1##NAME2##Types) {                             \
+    TEST(ValueTest, ArrayAdd##NAME1##NAME2##Types) {                          \
         Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};         \
                                                                               \
         Array<Value<TYPE2>> b = {TYPE2(5.0), TYPE2(6.0), TYPE2(7.0)};         \
@@ -762,6 +825,12 @@ TEST_ARRAY_NEG_FUNC(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(c[0].dataX(), ResultType(7.0));                             \
         EXPECT_EQ(c[1].dataX(), ResultType(9.0));                             \
         EXPECT_EQ(c[2].dataX(), ResultType(11.0));                            \
+                                                                              \
+        Array<Value<ResultType>> d = ptMgrad::add(a, b);                      \
+                                                                              \
+        EXPECT_EQ(d[0].dataX(), ResultType(7.0));                             \
+        EXPECT_EQ(d[1].dataX(), ResultType(9.0));                             \
+        EXPECT_EQ(d[2].dataX(), ResultType(11.0));                            \
     }
 
 //TEST_ARRAY_DIFF_TYPES_ADD(float, double, Float, Double)
@@ -770,18 +839,146 @@ TEST_ARRAY_DIFF_TYPES_ADD(float, int, Float, Int)
 //TEST_ARRAY_DIFF_TYPES_ADD(int, float, Int, Float)
 
 
+#define TEST_ARRAY_DIFF_TYPES_ADD_SCALAR_FUNC(TYPE1, TYPE2, NAME1, NAME2)            \
+    TEST(ValueTest, ArrayAddScalar##NAME1##NAME2##Types) {                           \
+        Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};                \
+                                                                                     \
+        using ResultType = typename std::common_type_t<TYPE1, TYPE2>;                \
+                                                                                     \
+        Array<Value<ResultType>> b = ptMgrad::add(a, TYPE2(1.0));                    \
+                                                                                     \
+		EXPECT_EQ(b[0].dataX(), ResultType(3.0));                                    \
+        EXPECT_EQ(b[1].dataX(), ResultType(4.0));                                    \
+        EXPECT_EQ(b[2].dataX(), ResultType(5.0));                                    \
+                                                                                     \
+        Array<Value<ResultType>> c = a + TYPE2(1.0);                                 \
+                                                                                     \
+		EXPECT_EQ(c[0].dataX(), ResultType(3.0));                                    \
+        EXPECT_EQ(c[1].dataX(), ResultType(4.0));                                    \
+        EXPECT_EQ(c[2].dataX(), ResultType(5.0));                                    \
+    }
+
+TEST_ARRAY_DIFF_TYPES_ADD_SCALAR_FUNC(double, float, Float, Double)
+TEST_ARRAY_DIFF_TYPES_ADD_SCALAR_FUNC(float, int, Double, Float)
+
+
 #define TEST_ARRAY_DIFF_TYPES_SUB(TYPE1, TYPE2, NAME1, NAME2)                 \
-    TEST(ValueTest, Array##NAME1##NAME2##Types) {                             \
+    TEST(ValueTest, ArraySub##NAME1##NAME2##Types) {                          \
         Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};         \
                                                                               \
         Array<Value<TYPE2>> b = {TYPE2(5.0), TYPE2(6.0), TYPE2(7.0)};         \
                                                                               \
-        Array<Value<TYPE1>> c = a - b;                                        \
+        using ResultType = typename std::common_type_t<TYPE1, TYPE2>;         \
                                                                               \
-        EXPECT_EQ(c[0].dataX(), TYPE1(-3.0));                                 \
-        EXPECT_EQ(c[1].dataX(), TYPE1(-3.0));                                 \
-        EXPECT_EQ(c[2].dataX(), TYPE1(-3.0));                                 \
+        Array<Value<ResultType>> c = a - b;                                   \
+                                                                              \
+        EXPECT_EQ(c[0].dataX(), ResultType(-3.0));                            \
+        EXPECT_EQ(c[1].dataX(), ResultType(-3.0));                            \
+        EXPECT_EQ(c[2].dataX(), ResultType(-3.0));                            \
+                                                                              \
+        Array<Value<ResultType>> d = ptMgrad::sub(a, b);                      \
+                                                                              \
+        EXPECT_EQ(d[0].dataX(), ResultType(-3.0));                            \
+        EXPECT_EQ(d[1].dataX(), ResultType(-3.0));                            \
+        EXPECT_EQ(d[2].dataX(), ResultType(-3.0));                            \
     }
 
 TEST_ARRAY_DIFF_TYPES_SUB(double, float, Float, Double)
 //TEST_ARRAY_DIFF_TYPES_SUB(float, int, Double, Float)
+
+
+#define TEST_ARRAY_DIFF_TYPES_MUL(TYPE1, TYPE2, NAME1, NAME2)                 \
+    TEST(ValueTest, ArrayMul##NAME1##NAME2##Types) {                          \
+        Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};         \
+                                                                              \
+        Array<Value<TYPE2>> b = {TYPE2(5.0), TYPE2(6.0), TYPE2(7.0)};         \
+                                                                              \
+        using ResultType = typename std::common_type_t<TYPE1, TYPE2>;         \
+                                                                              \
+        Array<Value<ResultType>> c = a * b;                                   \
+                                                                              \
+        EXPECT_EQ(c[0].dataX(), ResultType(10.0));                            \
+        EXPECT_EQ(c[1].dataX(), ResultType(18.0));                            \
+        EXPECT_EQ(c[2].dataX(), ResultType(28.0));                            \
+                                                                              \
+        Array<Value<ResultType>> d = ptMgrad::mul(a, b);                      \
+                                                                              \
+        EXPECT_EQ(d[0].dataX(), ResultType(10.0));                            \
+        EXPECT_EQ(d[1].dataX(), ResultType(18.0));                            \
+        EXPECT_EQ(d[2].dataX(), ResultType(28.0));                            \
+    }
+
+TEST_ARRAY_DIFF_TYPES_MUL(double, float, Float, Double)
+TEST_ARRAY_DIFF_TYPES_MUL(float, int, Double, Float)
+//TEST_ARRAY_DIFF_TYPES_MUL(int, float, Int, Float)
+
+
+#define TEST_ARRAY_DIFF_TYPES_MUL_SCALAR_FUNC(TYPE1, TYPE2, NAME1, NAME2)            \
+    TEST(ValueTest, ArrayMulScalar##NAME1##NAME2##Types) {                           \
+        Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};                \
+                                                                                     \
+        using ResultType = typename std::common_type_t<TYPE1, TYPE2>;                \
+                                                                                     \
+        Array<Value<ResultType>> b = ptMgrad::mul(a, TYPE2(2.0));                    \
+                                                                                     \
+		EXPECT_EQ(b[0].dataX(), ResultType(4.0));                                    \
+        EXPECT_EQ(b[1].dataX(), ResultType(6.0));                                    \
+        EXPECT_EQ(b[2].dataX(), ResultType(8.0));                                    \
+                                                                                     \
+		Array<Value<ResultType>> c = a * TYPE2(2.0);                                 \
+                                                                                     \
+		EXPECT_EQ(c[0].dataX(), ResultType(4.0));                                    \
+        EXPECT_EQ(c[1].dataX(), ResultType(6.0));                                    \
+        EXPECT_EQ(c[2].dataX(), ResultType(8.0));                                    \
+    }
+
+TEST_ARRAY_DIFF_TYPES_MUL_SCALAR_FUNC(double, float, Float, Double)
+TEST_ARRAY_DIFF_TYPES_MUL_SCALAR_FUNC(float, int, Double, Float)
+
+
+#define TEST_ARRAY_DIFF_TYPES_DIV(TYPE1, TYPE2, NAME1, NAME2)                 \
+    TEST(ValueTest, ArrayDiv##NAME1##NAME2##Types) {                          \
+        Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};         \
+                                                                              \
+        Array<Value<TYPE2>> b = {TYPE2(5.0), TYPE2(6.0), TYPE2(2.0)};         \
+                                                                              \
+        using ResultType = typename std::common_type_t<TYPE1, TYPE2>;         \
+                                                                              \
+        Array<Value<ResultType>> c = a / b;                                   \
+                                                                              \
+        EXPECT_EQ(c[0].dataX(), ResultType(0.4));                             \
+        EXPECT_EQ(c[1].dataX(), ResultType(0.5));                             \
+        EXPECT_EQ(c[2].dataX(), ResultType(2.0));                             \
+                                                                              \
+        Array<Value<ResultType>> d = ptMgrad::div(a, b);                      \
+                                                                              \
+        EXPECT_EQ(d[0].dataX(), ResultType(0.4));                             \
+        EXPECT_EQ(d[1].dataX(), ResultType(0.5));                             \
+        EXPECT_EQ(d[2].dataX(), ResultType(2.0));                             \
+    }
+
+TEST_ARRAY_DIFF_TYPES_DIV(double, float, Float, Double)
+TEST_ARRAY_DIFF_TYPES_DIV(float, int, Double, Float)
+
+
+#define TEST_ARRAY_DIFF_TYPES_DIV_SCALAR_FUNC(TYPE1, TYPE2, NAME1, NAME2)            \
+    TEST(ValueTest, ArrayDivScalar##NAME1##NAME2##Types) {                           \
+        Array<Value<TYPE1>> a = {TYPE1(2.0), TYPE1(3.0), TYPE1(4.0)};                \
+                                                                                     \
+        using ResultType = typename std::common_type_t<TYPE1, TYPE2>;                \
+                                                                                     \
+        Array<Value<ResultType>> b = ptMgrad::div(a, TYPE2(2.0));                    \
+                                                                                     \
+		EXPECT_EQ(b[0].dataX(), ResultType(1.0));                                    \
+        EXPECT_EQ(b[1].dataX(), ResultType(1.5));                                    \
+        EXPECT_EQ(b[2].dataX(), ResultType(2.0));                                    \
+                                                                                     \
+		Array<Value<ResultType>> c = a / TYPE2(2.0);                                 \
+                                                                                     \
+		EXPECT_EQ(c[0].dataX(), ResultType(1.0));                                    \
+        EXPECT_EQ(c[1].dataX(), ResultType(1.5));                                    \
+        EXPECT_EQ(c[2].dataX(), ResultType(2.0));                                    \
+    }
+
+TEST_ARRAY_DIFF_TYPES_DIV_SCALAR_FUNC(double, float, Float, Double)
+TEST_ARRAY_DIFF_TYPES_DIV_SCALAR_FUNC(float, int, Double, Float)
