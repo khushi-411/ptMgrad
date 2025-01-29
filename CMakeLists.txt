@@ -5,11 +5,15 @@ add_subdirectory(third_party/googletest)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# add pie flags
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
+
 set(PTMGRAD_ROOT ${PROJECT_SOURCE_DIR})
 set(PTMGRAD_SRCS_DIR "${PTMGRAD_ROOT}/src")
 set(PTMGRAD_TEST_DIR "${PTMGRAD_ROOT}/test")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIE")
 
 set(PTMGRAD_SRCS)
 list(APPEND PTMGRAD_SRCS
@@ -42,11 +46,11 @@ enable_testing()
 
 set(PTMGRAD_TESTS)
 list(APPEND PTMGRAD_TESTS
-    #${PTMGRAD_TEST_DIR}/test_array.cpp
+    ${PTMGRAD_TEST_DIR}/test_array.cpp
     ${PTMGRAD_TEST_DIR}/test_ops.cpp
-    #${PTMGRAD_TEST_DIR}/test_complex_ops.cpp
+    ${PTMGRAD_TEST_DIR}/test_complex_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_maths_ops.cpp
-    #${PTMGRAD_TEST_DIR}/test_complex_maths_ops.cpp
+    ${PTMGRAD_TEST_DIR}/test_complex_maths_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_comparison_ops.cpp
     #${PTMGRAD_TEST_DIR}/test_unary_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_activation_funcs.cpp

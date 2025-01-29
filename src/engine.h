@@ -20,8 +20,21 @@
 namespace ptMgrad {
 
 
+template <typename U>
+struct is_complex : std::false_type {};
+
+template <typename U>
+struct is_complex<complex<U>> : std::true_type {};
+
+template <typename U>
+inline constexpr bool is_complex_v = is_complex<U>::value;
+
+
 template <typename T>
 class Value {
+public:
+    typedef T value_type;
+
 private:
     T x;
     T y;
@@ -34,20 +47,40 @@ public:
     Value() : x(T(0.0)), y(T(0.0)) {}
 
     template <class _X> constexpr
-    Value(const Value<_X>& _x) : x(_x) {}
+    Value(const Value<_X>& _x) : x(_x.dataX()), y(_x.dataY()) {}
 
     template <class _X> constexpr
-    Value(const Value<_X>& _x, const Value<_X>& _y) : x(_x), y(_y) {}
+    Value(const Value<_X>& _x, const Value<_X>& _y) : x(_x.dataX()), y(_y.dataY()) {}
 
     // for scalar values
     template <class _X> constexpr
-    Value(const _X& _x) : x(_x) {}
+    Value(const _X& _x) : x(_x), y(T(0.0)) {}
 
     template <class _X> constexpr
     Value(const _X& _x, const _X& _y) : x(_x), y(_y) {}
 
+    // for complex
     template <class _X> constexpr
-    Value(const complex<_X>& _x) : x(_x.real()), y(_x.imag()) {}
+    Value(const complex<_X>& _x) {
+        // : x(_x.real()), y(_x.imag()) {}
+        if  constexpr (is_complex_v<_X>) {
+            x = _x;
+        } else {
+            x = complex<_X>(_x.real(), _x.imag());
+        }
+    }
+
+    template <class _X> constexpr
+    Value(const complex<_X>& _x, const complex<_X>& _y) {
+         //: x(complex<_X>(_x.real(), _y.real())), y(complex<_X>(_x.imag(), _y.imag())) {}
+        if constexpr (is_complex_v<_X>) {
+            x = _x;
+            y = _y;
+        } else {
+            x = complex<_X>(_x.real(), _y.real());
+            y = complex<_X>(_x.imag(), _y.imag());
+        }
+    }
 
     void add_child(const Value<T>* child) {
         children.push_back(const_cast<Value<T>*>(child));
@@ -59,18 +92,31 @@ public:
 
     template <class _X> constexpr
     Value& operator=(const Value<_X>& x) {
-        this->x = x;
+        // error: ‘double ptMgrad::Value<double>::x’ is private within this context
+        this->x = x.dataX();
+        this->y = x.dataY();
+        this->grad = T(0);
+        this->children.clear();
+        this->backward_fn = []() {};
         return *this;
     }
 
     template <class _X> constexpr
     Value& operator=(const _X& x) {
         this->x = x;
+        this->y = T(0);
+        this->grad = T(0);
+        this->children.clear();
+        this->backward_fn = []() {};
         return *this;
     }
 
     T dataX() const {
-        return x;
+        if constexpr (is_complex_v<T>) {
+            return x;
+        } else {
+            return x;
+        }
     }
 
     T dataY() const {
@@ -95,9 +141,10 @@ public:
 
     template <class _X> constexpr
     Value& operator- () {
-        this->x = -x;
-        this->y = -y;
-        return *this;
+        // this->x = -x;
+        // this->y = -y;
+        // return *this;
+		return Value(-x, -y);
     }
 
     constexpr operator bool() const {
@@ -132,33 +179,44 @@ public:
         backward_fn = fn;
     }
 
+    // don't keep this
+    // causing ambiguity with the global operator+ and operator-
+    /*
     template <class _X> constexpr
-    Value& operator+ (const Value<_X>& x) {
-        this->x += x.dataX();
-        return *this;
+    Value operator+ (const Value<_X>& x) const {
+        // this->x += x.dataX();
+        // this->y += x.dataY();
+        // return *this;
+        return Value(this->x + x.dataX(), this->y + x.dataY());
     }
 
     template <class _X> constexpr
-    Value& operator+ (const _X& x) {
-        this->x += x;
-        return *this;
+    Value operator+ (const _X& x) const {
+        // this->x += x;
+        // return *this;
+        return Value(this->x + x, this->y);
     }
 
     template <class _X> constexpr
-    Value& operator- (const Value<_X>& x) {
-        this->x -= x.dataX();
-        return *this;
+    Value operator- (const Value<_X>& x) const {
+        // this->x -= x.dataX();
+        // this->y -= x.dataY();
+        // return *this;
+        return Value(this->x - x.dataX(), this->y - x.dataY());
     }
 
     template <class _X> constexpr
-    Value& operator- (const _X& x) {
-        this->x -= x;
-        return *this;
+    Value operator- (const _X& x) const {
+        // this->x -= x;
+        // return *this;
+        return Value(this->x - x, this->y);
     }
+    */
 
     template <class _X> constexpr
     Value& operator+= (const Value<_X>& x) {
         this->x += x.dataX();
+        this->y += x.dataY();
         return *this;
     }
 
@@ -171,6 +229,7 @@ public:
     template <class _X> constexpr
     Value& operator-= (const Value<_X>& x) {
         this->x -= x.dataX();
+        this->y -= x.dataY();
         return *this;
     }
 
@@ -183,6 +242,7 @@ public:
     template <class _X> constexpr
     Value& operator*= (const Value<_X>& x) {
         this->x *= x.dataX();
+        this->y *= x.dataY();
         return *this;
     }
 
@@ -195,6 +255,7 @@ public:
     template <class _X> constexpr
     Value& operator/= (const Value<_X>& x) {
         this->x /= x.dataX();
+        this->y /= x.dataY();
         return *this;
     }
 
@@ -207,7 +268,7 @@ public:
     // TODO: why const?
     template <class _X> constexpr
     bool operator<(const Value<_X>& _x) const {  // Note: return type bool
-        return x < _x.x;
+        return x < _x.dataX();
     }
 
     template <class _X> constexpr
@@ -218,19 +279,10 @@ public:
     // TODO: why we don't need operator>
 
     friend std::ostream& operator<< (std::ostream& os, const Value& _x) {
-        os << _x.x;
+        os << _x.dataX();
         return os;
     }
 };
-
-template <typename T>
-struct is_complex : std::false_type {};
-
-template <typename T>
-struct is_complex<complex<T>> : std::true_type {};
-
-template <typename T>
-inline constexpr bool is_complex_v = is_complex<T>::value;
 
 
 // template <typename T>
@@ -249,6 +301,14 @@ template <class T>
 inline
 Value <T>
 operator+ (const Value<T>& x, const Value<T>& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.dataX().real() + y.dataX().real(),
+            x.dataX().imag() + y.dataX().imag()
+        );
+        return Value<T>(val);
+    }
+
 	Value<T> __k = x;
     __k += y;
 
@@ -269,6 +329,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator+ (const Value<T>& x, const Value<U>& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.dataX().real() + y.dataX().real(),
+            x.dataX().imag() + y.dataX().imag()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k += y;
 
@@ -288,6 +356,14 @@ template <class T>
 inline
 Value <T>
 operator+ (const Value<T>& x, const T& y) {
+	if constexpr (is_complex_v<T>) {
+        T val(
+            x.dataX().real() + y.real(),
+            x.dataX().imag() + y.imag()
+        );
+        return Value<T>(val);
+    }
+
 	Value<T> __k = x;
     __k += y;
 
@@ -306,6 +382,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator+ (const Value<T>& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.dataX().real() + y.real(),
+            x.dataX().imag() + y.imag()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+    
 	Value<ResultType<T, U>> __k = x;
     __k += y;
 
@@ -324,6 +408,14 @@ template <class T>
 inline
 Value <T>
 operator+ (const T& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.real() + y.real(),
+            x.imag() + y.imag()
+        );
+        return Value<T>(val);
+    }
+
 	Value<T> __k = x;
     __k += y;
     return x + y;
@@ -334,6 +426,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator+ (const T& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.real() + y.real(),
+            x.imag() + y.imag()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
 	Value<ResultType<T, U>> __k = x;
     __k += y;
     return __k;
@@ -343,59 +443,15 @@ operator+ (const T& x, const U& y) {
 template <class T>
 inline
 Value <T>
-operator+ (const Value<complex<T>>& x, const Value<complex<T>>& y) {
-    Value<complex<T>> __k = x;
-    __k += y;
-
-    __k.add_child(&x);
-    __k.add_child(&y);
-
-    __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad());
-        y.add_grad(__k.get_grad());
-    });
-
-    return __k;
-}
-
-
-template <class T>
-inline
-Value <T>
-operator+ (const Value<complex<T>>& x, const complex<T>& y) {
-    Value<complex<T>> __k = x;
-    __k += y;
-
-    __k.add_child(&x);
-
-    __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad());
-    });
-
-    return __k;
-}
-
-template <class T>
-inline
-Value <T>
-operator+ (const complex<T>& x, const Value<complex<T>>& y) {
-    Value<complex<T>> __k = x;
-    __k += y;
-
-    __k.add_child(&y);
-
-    __k.set_backward([&x, &y, &__k]() {
-        y.add_grad(__k.get_grad());
-    });
-
-    return __k;
-}
-
-
-template <class T>
-inline
-Value <T>
 operator- (const Value<T>& x, const Value<T>& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.dataX().real() - y.dataX().real(),
+            x.dataX().imag() - y.dataX().imag()
+        );
+        return Value<T>(val);
+    }
+
     Value<T> __k = x;
     __k -= y;
 
@@ -404,7 +460,7 @@ operator- (const Value<T>& x, const Value<T>& y) {
 
     __k.set_backward([&x, &y, &__k]() {
         x.add_grad(__k.get_grad());
-        y.add_grad(__k.get_grad());
+        y.add_grad(-__k.get_grad());
     });
 
     return __k;
@@ -415,6 +471,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator- (const Value<T>& x, const Value<U>& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.dataX().real() - y.dataX().real(),
+            x.dataX().imag() - y.dataX().imag()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k -= y;
 
@@ -434,6 +498,14 @@ template <class T>
 inline
 Value <T>
 operator- (const Value<T>& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.dataX().real() - y.real(),
+            x.dataX().imag() - y.imag()
+        );
+        return Value<T>(val);
+    }
+
     Value<T> __k = x;
     __k -= y;
 
@@ -450,6 +522,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator- (const Value<T>& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.dataX().real() - y.real(),
+            x.dataX().imag() - y.imag()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k -= y;
 
@@ -467,6 +547,14 @@ template <class T>
 inline
 Value <T>
 operator- (const T& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.real() - y.real(),
+            x.imag() - y.imag()
+        );
+        return Value<T>(val);
+    }
+
     Value<T> __k = x;
     __k -= y;
     return __k;
@@ -476,6 +564,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator- (const T& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.real() - y.real(),
+            x.imag() - y.imag()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k -= y;
     return __k;
@@ -485,59 +581,15 @@ operator- (const T& x, const U& y) {
 template <class T>
 inline
 Value <T>
-operator- (const Value<complex<T>>& x, const Value<complex<T>>& y) {
-    Value<complex<T>> __k = x;
-    __k -= y;
-
-    __k.add_child(&x);
-    __k.add_child(&y);
-
-    __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad());
-        y.add_grad(__k.get_grad());
-    });
-
-    return __k;
-}
-
-
-template <class T>
-inline
-Value <T>
-operator- (const Value<complex<T>>& x, const complex<T>& y) {
-    Value<complex<T>> __k = x;
-    __k -= y;
-
-    __k.add_child(&x);
-
-    __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad());
-    });
-
-    return __k;
-}
-
-template <class T>
-inline
-Value <T>
-operator- (const complex<T>& x, const Value<complex<T>>& y) {
-    Value<complex<T>> __k = x;
-    __k -= y;
-
-    __k.add_child(&y);
-
-    __k.set_backward([&x, &y, &__k]() {
-        y.add_grad(__k.get_grad());
-    });
-
-    return __k;
-}
-
-
-template <class T>
-inline
-Value <T>
 operator* (const Value<T>& x, const Value<T>& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.dataX().real() * y.dataX().real() - x.dataX().imag() * y.dataX().imag(),
+            x.dataX().real() * y.dataX().imag() + x.dataX().imag() * y.dataX().real()
+        );
+        return Value<T>(val);
+    }
+
     Value<T> __k = x;
     __k *= y;
 
@@ -545,8 +597,8 @@ operator* (const Value<T>& x, const Value<T>& y) {
     __k.add_child(&y);
 
     __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad() * y);
-        y.add_grad(__k.get_grad() * x);
+        x.add_grad(__k.get_grad() * y.dataX());
+        y.add_grad(__k.get_grad() * x.dataX());
     });
 
     return __k;
@@ -557,6 +609,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator* (const Value<T>& x, const Value<U>& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.dataX().real() * y.dataX().real() - x.dataX().imag() * y.dataX().imag(),
+            x.dataX().real() * y.dataX().imag() + x.dataX().imag() * y.dataX().real()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k *= y;
 
@@ -564,8 +624,8 @@ operator* (const Value<T>& x, const Value<U>& y) {
     //__k.add_child(&y);
 
     //__k.set_backward([&x, &y, &__k]() {
-    //    x.add_grad(__k.get_grad() * y);
-    //    y.add_grad(__k.get_grad() * x);
+    //    x.add_grad(__k.get_grad() * y.dataX());
+    //    y.add_grad(__k.get_grad() * x.dataX());
     //});
 
     return __k;
@@ -576,6 +636,14 @@ template <class T>
 inline
 Value <T>
 operator* (const Value<T>& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.dataX().real() * y.real() - x.dataX().imag() * y.imag(),
+            x.dataX().real() * y.imag() + x.dataX().imag() * y.real()
+        );
+        return Value<T>(val);
+    }
+
     Value<T> __k = x;
     __k *= y;
 
@@ -592,6 +660,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator* (const Value<T>& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.dataX().real() * y.real() - x.dataX().imag() * y.imag(),
+            x.dataX().real() * y.imag() + x.dataX().imag() * y.real()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k *= y;
 
@@ -609,6 +685,14 @@ template <class T>
 inline
 Value <T>
 operator* (const T& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        T val(
+            x.real() * y.real() - x.imag() * y.imag(),
+            x.real() * y.imag() + x.imag() * y.real()
+        );
+        return Value<T>(val);
+    }
+
     Value<T> __k = x;
     __k *= y;
     return __k;
@@ -619,6 +703,14 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator* (const T& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        ResultType<T, U> val(
+            x.real() * y.real() - x.imag() * y.imag(),
+            x.real() * y.imag() + x.imag() * y.real()
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     Value<ResultType<T, U>> __k = x;
     __k *= y;
     return __k;
@@ -628,59 +720,20 @@ operator* (const T& x, const U& y) {
 template <class T>
 inline
 Value <T>
-operator* (const Value<complex<T>>& x, const Value<complex<T>>& y) {
-    Value<complex<T>> __k = x;
-    __k *= y;
-
-    __k.add_child(&x);
-    __k.add_child(&y);
-
-    // TODO: fix this
-    //__k.set_backward([&x, &y, &__k]() {
-    //    x.add_grad(__k.get_grad() * y);
-    //    y.add_grad(__k.get_grad() * x);
-    //});
-
-    return __k;
-}
-
-template <class T>
-inline
-Value <T>
-operator* (const Value<complex<T>>& x, const complex<T>& y) {
-    Value<complex<T>> __k = x;
-    __k *= y;
-
-    __k.add_child(&x);
-
-    __k.set_backward([&x, &y, &__k]() {
-        x.add_grad(__k.get_grad() * y);
-    });
-
-    return __k;
-}
-
-template <class T>
-inline
-Value <T>
-operator* (const complex<T>& x, const Value<complex<T>>& y) {
-    Value<complex<T>> __k = x;
-    __k *= y;
-
-    __k.add_child(&y);
-
-    __k.set_backward([&x, &y, &__k]() {
-        y.add_grad(__k.get_grad() * x);
-    });
-
-    return __k;
-}
-
-
-template <class T>
-inline
-Value <T>
 operator/ (const Value<T>& x, const Value<T>& y) {
+    if constexpr (is_complex_v<T>) {
+        auto dr = y.dataX().real() * y.dataX().real() + y.dataX().imag() * y.dataX().imag();
+        if (dr == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        T val(
+            (x.dataX().real() * y.dataX().real() + x.dataX().imag() * y.dataX().imag()) / dr,
+            (x.dataX().imag() * y.dataX().real() - x.dataX().real() * y.dataX().imag()) / dr
+        );
+        return Value<T>(val);
+    }
+
     if (y.dataX() == 0) {
         throw std::invalid_argument("Division by zero");
     }
@@ -695,6 +748,19 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator/ (const Value<T>& x, const Value<U>& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        auto dr = y.dataX().real() * y.dataX().real() + y.dataX().imag() * y.dataX().imag();
+        if (dr == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        ResultType<T, U> val(
+            (x.dataX().real() * y.dataX().real() + x.dataX().imag() * y.dataX().imag()) / dr,
+            (x.dataX().imag() * y.dataX().real() - x.dataX().real() * y.dataX().imag()) / dr
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     if (y.dataX() == 0) {
         throw std::invalid_argument("Division by zero");
     }
@@ -709,6 +775,19 @@ template <class T>
 inline
 Value <T>
 operator/ (const Value<T>& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        auto dr = y.real() * y.real() + y.imag() * y.imag();
+        if (dr == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        T val(
+            (x.dataX().real() * y.real() + x.dataX().imag() * y.imag()) / dr,
+            (x.dataX().imag() * y.real() + x.dataX().real() * y.imag()) / dr
+        );
+        return Value<T>(val);
+    }
+
     if (y == 0) {
         throw std::invalid_argument("Division by zero");
     }
@@ -723,6 +802,19 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator/ (const Value<T>& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        auto dr = y.real() * y.real() + y.imag() * y.imag();
+        if (dr == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        ResultType<T, U> val(
+            (x.dataX().real() * y.real() + x.dataX().imag() * y.imag()) / dr,
+            (x.dataX().imag() * y.real() + x.dataX().real() * y.imag()) / dr
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     if (y == 0) {
         throw std::invalid_argument("Division by zero");
     }
@@ -737,6 +829,19 @@ template <class T>
 inline
 Value <T>
 operator/ (const T& x, const T& y) {
+    if constexpr (is_complex_v<T>) {
+        auto dr = y.real() * y.real() + y.imag() * y.imag();
+        if (dr == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        T val(
+            (x.real() * y.real() + x.imag() * y.imag()) / dr,
+            (x.imag() * y.real() + x.real() * y.imag()) / dr
+        );
+        return Value<T>(val);
+    }
+
     if (y == 0) {
         throw std::invalid_argument("Division by zero");
     }
@@ -750,6 +855,19 @@ template <class T, class U>
 inline
 Value <ResultType<T, U>>
 operator/ (const T& x, const U& y) {
+    if constexpr (is_complex_v<T> && is_complex_v<U>) {
+        auto dr = y.real() * y.real() + y.imag() * y.imag();
+        if (dr == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        ResultType<T, U> val(
+            (x.real() * y.real() + x.imag() * y.imag()) / dr,
+            (x.imag() * y.real() + x.real() * y.imag()) / dr
+        );
+        return Value<ResultType<T, U>>(val);
+    }
+
     if (y == 0) {
         throw std::invalid_argument("Division by zero");
     }
@@ -759,7 +877,7 @@ operator/ (const T& x, const U& y) {
     return __k;
 }
 
-
+/*
 template <class T>
 inline
 Value <T>
@@ -799,7 +917,7 @@ operator/ (const Value<complex<T>>& x, const complex<T>& y) {
     __k /= y;
     return __k;
 }
-
+*/
 
 template <class T>
 inline
@@ -1446,7 +1564,7 @@ mul(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] * _y[i]);
+        __k.push_back(mul(_x[i], _y[i]));
     }
     return __k;
 }
@@ -1462,7 +1580,7 @@ mul(const std::vector<Value<T>>& _x, const std::vector<Value<U>>& _y) {
     std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] * _y[i]);
+        __k.push_back(mul(_x[i], _y[i]));
     }
     return __k;
 }
@@ -1474,7 +1592,7 @@ mul(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] * _y);
+        __k.push_back(mul(_x[i], _y));
     }
     return __k;
 }
@@ -1486,7 +1604,7 @@ mul(const std::vector<Value<T>>& _x, const U& _y) {
     std::vector<Value<ResultType<T, U>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] * _y);
+        __k.push_back(mul(_x[i], _y));
     }
     return __k;
 }
@@ -1938,14 +2056,22 @@ template <class T>
 inline
 Value <T>
 neg(const Value<T>& _x) {
-    return Value<T>(-_x.dataX());
+    if constexpr (is_complex_v<T>) {
+        return Value<T>(complex<T>(-_x.dataX().real(), -_x.dataX().imag()));
+    } else {
+        return Value<T>(-_x.dataX());
+    }
 }
 
 template <class T>
 inline
 Value <T>
 neg(const T& _x) {
-    return Value<T>(-_x);
+    if constexpr (is_complex_v<T>) {
+        return Value<T>(complex<T>(-_x.real(), -_x.imag()));
+    } else {
+        return Value<T>(-_x);
+    }
 }
 
 template <class T>
@@ -1972,6 +2098,7 @@ neg(const std::vector<std::vector<Value<T>>>& _x) {
     return __k;
 }
 
+/*
 template <class T>
 inline
 Value<ptMgrad::complex<T>>
@@ -1992,7 +2119,7 @@ neg(const std::vector<Value<ptMgrad::complex<T>>>& _x) {
     }
     return __k;
 }
-
+*/
 
 // lt
 

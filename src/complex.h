@@ -483,9 +483,9 @@ operator/(const complex<T>& _x, const complex<T>& _y) {
     T __k2 = _x.imag() * _y.real() - _x.real() * _y.imag();
     T __k3 = _y.real() * _y.real() + _y.imag() * _y.imag();
 
-    if (__k3 == 0) {
-        throw std::invalid_argument("Division by zero");
-    }
+    //if (__k3 == T(0)) {
+    //    throw std::invalid_argument("Division by zero");
+    //}
 
     return complex<T>(__k1 / __k3, __k2 / __k3);
 }

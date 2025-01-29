@@ -862,6 +862,7 @@ TEST(ValueTest, ComplexRdivVectorScalar) {
     EXPECT_EQ(c[1].dataX().real(), result[1].dataX().real());
     EXPECT_EQ(c[1].dataX().imag(), result[1].dataX().imag());
 }
+
 /*
 TEST(ValueTest, ComplexRdivMatrix) {
     std::vector<std::vector<Value<complex<float>>>> a = {
@@ -1008,7 +1009,6 @@ TEST(ValueTest, ComplexPowVector) {
     EXPECT_EQ(c[1].dataX().real(), result[1].dataX().real());
     EXPECT_EQ(c[1].dataX().imag(), result[1].dataX().imag());
 }
-
 
 TEST(ValueTest, ComplexPowVectorScalar) {
     std::vector<Value<complex<float>>> a = {

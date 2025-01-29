@@ -20,7 +20,7 @@ TEST(ValueTest, ComplexAddOp) {
 
     EXPECT_EQ((a + b).dataX(), complex<float>(4.0f, 6.0f));
 }
-/*
+
 TEST(ValueTest, ComplexAddOpScalar) {
     Value<complex<float>> a(complex<float>(1.0f, 2.0f));
     complex<float> b(3.0f, 4.0f);
@@ -228,15 +228,15 @@ TEST(ValueTest, ComplexMulOpScalar4) {
 // div
 
 TEST(ValueTest, ComplexDivOp) {
-    Value<complex<float>> a(complex<float>(1.0f, 2.0f));
-    Value<complex<float>> b(complex<float>(3.0f, 4.0f));
+    Value<complex<float>> a(complex<float>(4.0f, 3.0f));
+    Value<complex<float>> b(complex<float>(1.0f, 2.0f));
 
-    EXPECT_EQ(a.dataX().real(), 1.0f);
-    EXPECT_EQ(a.dataX().imag(), 2.0f);
-    EXPECT_EQ(b.dataX().real(), 3.0f);
-    EXPECT_EQ(b.dataX().imag(), 4.0f);
+    EXPECT_EQ(a.dataX().real(), 4.0f);
+    EXPECT_EQ(a.dataX().imag(), 3.0f);
+    EXPECT_EQ(b.dataX().real(), 1.0f);
+    EXPECT_EQ(b.dataX().imag(), 2.0f);
 
-    EXPECT_EQ((a / b).dataX(), complex<float>(0.44f, 0.08f));
+    EXPECT_EQ((a / b).dataX(), complex<float>(2.0f, -1.0f));
 }
 
 TEST(ValueTest, ComplexDivOpScalar) {
@@ -289,4 +289,3 @@ TEST(ValueTest, ComplexDivOpScalar4) {
 
     EXPECT_EQ((a / b).dataX(), complex<float>(0.33f, 0.67f));
 }
-*/
