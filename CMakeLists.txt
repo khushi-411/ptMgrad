@@ -54,6 +54,7 @@ list(APPEND PTMGRAD_TESTS
     ${PTMGRAD_TEST_DIR}/test_comparison_ops.cpp
     #${PTMGRAD_TEST_DIR}/test_unary_ops.cpp
     ${PTMGRAD_TEST_DIR}/test_activation_funcs.cpp
+    ${PTMGRAD_TEST_DIR}/test_composite_operations.cpp
 )
 
 add_executable(${PROJECT_NAME}_tests ${PTMGRAD_TESTS})

@@ -90,6 +90,12 @@ public:
         grad += _grad;
     }
 
+	template <typename _X, typename U=T>
+    typename std::enable_if<is_complex_v<U>, void>::type
+    add_grad(_X real, _X imag) const {
+        grad += T(real, imag);
+    }
+
     template <class _X> constexpr
     Value& operator=(const Value<_X>& x) {
         // error: ‘double ptMgrad::Value<double>::x’ is private within this context
@@ -306,7 +312,17 @@ operator+ (const Value<T>& x, const Value<T>& y) {
             x.dataX().real() + y.dataX().real(),
             x.dataX().imag() + y.dataX().imag()
         );
-        return Value<T>(val);
+		Value<T> __k = Value<T>(val);
+
+		__k.add_child(&x);
+		__k.add_child(&y);
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+			y.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+		});
+
+        return __k;
     }
 
 	Value<T> __k = x;
@@ -334,7 +350,17 @@ operator+ (const Value<T>& x, const Value<U>& y) {
             x.dataX().real() + y.dataX().real(),
             x.dataX().imag() + y.dataX().imag()
         );
-        return Value<ResultType<T, U>>(val);
+		Value<ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&y));
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+			y.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+		});
+
+        return __k;
     }
 
     Value<ResultType<T, U>> __k = x;
@@ -361,7 +387,17 @@ operator+ (const Value<T>& x, const T& y) {
             x.dataX().real() + y.real(),
             x.dataX().imag() + y.imag()
         );
-        return Value<T>(val);
+        Value <T> __k = Value<T>(val);
+
+        __k.add_child(&x);
+		// __k.add_child(&y);
+
+        __k.set_backward([&x, &y, &__k]() {
+            x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+			// y.add_grad(T(0.0), T(0.0));
+        });
+
+        return __k;
     }
 
 	Value<T> __k = x;
@@ -387,18 +423,25 @@ operator+ (const Value<T>& x, const U& y) {
             x.dataX().real() + y.real(),
             x.dataX().imag() + y.imag()
         );
-        return Value<ResultType<T, U>>(val);
+        Value<ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+		});
+
+        return __k;
     }
     
 	Value<ResultType<T, U>> __k = x;
     __k += y;
 
-    //__k.add_child(&x);
+    __k.add_child(&x);
 
-    //__k.set_backward([&x, &y, &__k]() {
-    // x.grad = add_grad(x.get_grad(), __k.get_grad());
-    //    x.add_grad(__k.get_grad());
-    //});
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+    });
 
     return __k;
 }
@@ -449,7 +492,17 @@ operator- (const Value<T>& x, const Value<T>& y) {
             x.dataX().real() - y.dataX().real(),
             x.dataX().imag() - y.dataX().imag()
         );
-        return Value<T>(val);
+        Value <T> __k = Value<T>(val);
+
+        __k.add_child(&x);
+        __k.add_child(&y);
+
+        __k.set_backward([&x, &y, &__k]() {
+            x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+            y.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
+        });
+
+        return __k;
     }
 
     Value<T> __k = x;
@@ -476,7 +529,17 @@ operator- (const Value<T>& x, const Value<U>& y) {
             x.dataX().real() - y.dataX().real(),
             x.dataX().imag() - y.dataX().imag()
         );
-        return Value<ResultType<T, U>>(val);
+		Value<ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&y));
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+			y.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
+		});
+
+        return __k;
     }
 
     Value<ResultType<T, U>> __k = x;
@@ -503,7 +566,15 @@ operator- (const Value<T>& x, const T& y) {
             x.dataX().real() - y.real(),
             x.dataX().imag() - y.imag()
         );
-        return Value<T>(val);
+        Value<T> __k = Value<T>(val);
+
+		__k.add_child(&x);
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+		});
+
+        return __k;
     }
 
     Value<T> __k = x;
@@ -527,17 +598,25 @@ operator- (const Value<T>& x, const U& y) {
             x.dataX().real() - y.real(),
             x.dataX().imag() - y.imag()
         );
-        return Value<ResultType<T, U>>(val);
+        Value <ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
+		});
+
+        return __k;
     }
 
     Value<ResultType<T, U>> __k = x;
     __k -= y;
 
-    //__k.add_child(&x);
+    __k.add_child(&x);
 
-    //__k.set_backward([&x, &y, &__k]() {
-    //    x.add_grad(__k.get_grad());
-    //});
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad());
+    });
 
     return __k;
 }
@@ -587,7 +666,23 @@ operator* (const Value<T>& x, const Value<T>& y) {
             x.dataX().real() * y.dataX().real() - x.dataX().imag() * y.dataX().imag(),
             x.dataX().real() * y.dataX().imag() + x.dataX().imag() * y.dataX().real()
         );
-        return Value<T>(val);
+        Value <T> __k = Value<T>(val);
+
+		__k.add_child(&x);
+		__k.add_child(&y);
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				__k.get_grad().real() * y.dataX().real() - __k.get_grad().imag() * y.dataX().imag(),
+				__k.get_grad().real() * y.dataX().imag() + __k.get_grad().imag() * y.dataX().real()
+			);
+			y.add_grad(
+				__k.get_grad().real() * x.dataX().real() - __k.get_grad().imag() * x.dataX().imag(),
+				__k.get_grad().real() * x.dataX().imag() + __k.get_grad().imag() * x.dataX().real()
+			);
+		});
+
+		return __k;
     }
 
     Value<T> __k = x;
@@ -614,7 +709,23 @@ operator* (const Value<T>& x, const Value<U>& y) {
             x.dataX().real() * y.dataX().real() - x.dataX().imag() * y.dataX().imag(),
             x.dataX().real() * y.dataX().imag() + x.dataX().imag() * y.dataX().real()
         );
-        return Value<ResultType<T, U>>(val);
+        Value <ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&y));
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				__k.get_grad().real() * y.dataX().real() - __k.get_grad().imag() * y.dataX().imag(),
+				__k.get_grad().real() * y.dataX().imag() + __k.get_grad().imag() * y.dataX().real()
+			);
+			y.add_grad(
+				__k.get_grad().real() * x.dataX().real() - __k.get_grad().imag() * x.dataX().imag(),
+				__k.get_grad().real() * x.dataX().imag() + __k.get_grad().imag() * x.dataX().real()
+			);
+		});
+
+		return __k;
     }
 
     Value<ResultType<T, U>> __k = x;
@@ -641,7 +752,18 @@ operator* (const Value<T>& x, const T& y) {
             x.dataX().real() * y.real() - x.dataX().imag() * y.imag(),
             x.dataX().real() * y.imag() + x.dataX().imag() * y.real()
         );
-        return Value<T>(val);
+        Value <T> __k = Value<T>(val);
+
+		__k.add_child(&x);
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				__k.get_grad().real() * y.real() - __k.get_grad().imag() * y.imag(),
+				__k.get_grad().real() * y.imag() + __k.get_grad().imag() * y.real()
+			);
+		});
+
+        return __k;
     }
 
     Value<T> __k = x;
@@ -665,17 +787,28 @@ operator* (const Value<T>& x, const U& y) {
             x.dataX().real() * y.real() - x.dataX().imag() * y.imag(),
             x.dataX().real() * y.imag() + x.dataX().imag() * y.real()
         );
-        return Value<ResultType<T, U>>(val);
+        Value <ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				__k.get_grad().real() * y.real() - __k.get_grad().imag() * y.imag(),
+				__k.get_grad().real() * y.imag() + __k.get_grad().imag() * y.real()
+			);
+		});
+
+		return __k;
     }
 
     Value<ResultType<T, U>> __k = x;
     __k *= y;
 
-    //__k.add_child(&x);
+    __k.add_child(&x);
 
-    //__k.set_backward([&x, &y, &__k]() {
-    //    x.add_grad(__k.get_grad() * y);
-    //});
+    __k.set_backward([&x, &y, &__k]() {
+        x.add_grad(__k.get_grad() * y);
+    });
 
     return __k;
 }
@@ -731,7 +864,14 @@ operator/ (const Value<T>& x, const Value<T>& y) {
             (x.dataX().real() * y.dataX().real() + x.dataX().imag() * y.dataX().imag()) / dr,
             (x.dataX().imag() * y.dataX().real() - x.dataX().real() * y.dataX().imag()) / dr
         );
-        return Value<T>(val);
+        Value <T> __k = Value<T>(val);
+
+		__k.add_child(&x);
+		__k.add_child(&y);
+
+
+
+		return __k;
     }
 
     if (y.dataX() == 0) {
@@ -758,6 +898,22 @@ operator/ (const Value<T>& x, const Value<U>& y) {
             (x.dataX().real() * y.dataX().real() + x.dataX().imag() * y.dataX().imag()) / dr,
             (x.dataX().imag() * y.dataX().real() - x.dataX().real() * y.dataX().imag()) / dr
         );
+		Value<ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&y));
+
+		/*__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				(__k.get_grad().real() * y.dataX().real() + __k.get_grad().imag() * y.dataX().imag()) / dr,
+				(__k.get_grad().real() * y.dataX().imag() - __k.get_grad().imag() * y.dataX().real()) / dr
+			);
+			y.add_grad(
+				(__k.get_grad().real() * x.dataX().imag() - __k.get_grad().imag() * x.dataX().real()) / dr,
+				(__k.get_grad().real() * x.dataX().real() - __k.get_grad().imag() * x.dataX().imag()) / dr
+			);
+		});*/
+
         return Value<ResultType<T, U>>(val);
     }
 
@@ -785,7 +941,18 @@ operator/ (const Value<T>& x, const T& y) {
             (x.dataX().real() * y.real() + x.dataX().imag() * y.imag()) / dr,
             (x.dataX().imag() * y.real() + x.dataX().real() * y.imag()) / dr
         );
-        return Value<T>(val);
+        Value <T> __k = Value<T>(val);
+
+		/*__k.add_child(&x);
+
+		__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				(__k.get_grad().real() * y.real() + __k.get_grad().imag() * y.imag()) / dr,
+				(__k.get_grad().real() * y.imag() - __k.get_grad().imag() * y.real()) / dr
+			);
+		});*/
+
+        return __k;
     }
 
     if (y == 0) {
@@ -812,7 +979,18 @@ operator/ (const Value<T>& x, const U& y) {
             (x.dataX().real() * y.real() + x.dataX().imag() * y.imag()) / dr,
             (x.dataX().imag() * y.real() + x.dataX().real() * y.imag()) / dr
         );
-        return Value<ResultType<T, U>>(val);
+        Value<ResultType<T, U>> __k = Value<ResultType<T, U>>(val);
+
+		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
+
+		/*__k.set_backward([&x, &y, &__k]() {
+			x.add_grad(
+				(__k.get_grad().real() * y.real() + __k.get_grad().imag() * y.imag()) / dr,
+				(__k.get_grad().real() * y.imag() - __k.get_grad().imag() * y.real()) / dr
+			);
+		});*/
+
+		return __k;
     }
 
     if (y == 0) {
@@ -1564,7 +1742,16 @@ mul(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(mul(_x[i], _y[i]));
+        //__k.push_back(mul(_x[i], _y[i]));
+        if constexpr (is_complex_v<T>) {
+            T val(
+                _x[i].dataX().real() * _y[i].dataX().real() - _x[i].dataX().imag() * _y[i].dataX().imag(),
+                _x[i].dataX().real() * _y[i].dataX().imag() + _x[i].dataX().imag() * _y[i].dataX().real()
+            );
+            __k.push_back(Value<T>(val));
+        } else {
+            __k.push_back(_x[i] * _y[i]);
+        }
     }
     return __k;
 }
@@ -1954,9 +2141,17 @@ template <class T>
 inline
 Value<T>
 pow(const Value<T>& _x, const Value<T>& _y) {
-    Value<T> __k;
-    __k = std::pow(_x.dataX(), _y.dataX());
-    return Value<T>(__k);
+    Value<T> __k = Value<T>(std::pow(_x.dataX(), _y.dataX()));
+
+	__k.add_child(&_x);
+	__k.add_child(&_y);
+
+	__k.set_backward([&_x, &_y, &__k]() {
+		_x.add_grad(__k.get_grad() * _y.dataX() * std::pow(_x.dataX(), _y.dataX() - 1));
+		_y.add_grad(__k.get_grad() * std::pow(_x.dataX(), _y.dataX()) * std::log(_x.dataX()));
+	});
+
+	return __k;
 }
 
 
@@ -1964,9 +2159,15 @@ template <class T>
 inline
 Value <T>
 pow(const Value<T>& _x, const T& _y) {
-    Value<T> __k;
-    __k = std::pow(_x.dataX(), _y);
-    return Value<T>(__k);
+    Value<T> __k = Value<T>(std::pow(_x.dataX(), _y));
+
+	__k.add_child(&_x);
+
+	__k.set_backward([&_x, &_y, &__k]() {
+		_x.add_grad(__k.get_grad() * _y * std::pow(_x.dataX(), _y - 1));
+	});
+
+	return __k;
 }
 
 template <class T>
@@ -2057,7 +2258,16 @@ inline
 Value <T>
 neg(const Value<T>& _x) {
     if constexpr (is_complex_v<T>) {
-        return Value<T>(complex<T>(-_x.dataX().real(), -_x.dataX().imag()));
+        Value<T> __k = Value<T>(complex<T>(-_x.dataX().real(), -_x.dataX().imag()));
+
+		__k.add_child(&_x);
+
+		__k.set_backward([&_x, &__k]() {
+			_x.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
+		});
+
+		return __k;
+
     } else {
         return Value<T>(-_x.dataX());
     }

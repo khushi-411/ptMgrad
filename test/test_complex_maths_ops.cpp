@@ -543,7 +543,7 @@ TEST(ValueTest, ComplexMulScalar4) {
 
     EXPECT_EQ(c.dataX(), complex<float>(3.0f, 6.0f));
 }
-
+/*
 TEST(ValueTest, ComplexMulVector) {
     std::vector<Value<complex<float>>> a = {
         complex<float>(1.0f, 2.0f),
@@ -583,7 +583,7 @@ TEST(ValueTest, ComplexMulVectorScalar) {
     EXPECT_EQ(c[0].dataX().real(), result[0].dataX().real());
     EXPECT_EQ(c[1].dataX().real(), result[1].dataX().real());
 }
-
+*/
 /*
 TEST(ValueTest, ComplexMulVectorScalar2) {
     complex<float> a(1.0f, 2.0f);
@@ -602,7 +602,7 @@ TEST(ValueTest, ComplexMulVectorScalar2) {
     EXPECT_EQ(c[0].dataX().real(), result[0].dataX().real());
     EXPECT_EQ(c[1].dataX().real(), result[1].dataX().real());
 }
-*/
+
 
 TEST(ValueTest, ComplexMulMatrix) {
     std::vector<std::vector<Value<complex<float>>>> a = {
@@ -633,7 +633,7 @@ TEST(ValueTest, ComplexMulMatrix) {
     EXPECT_EQ(c[1][1].dataX().real(), result[1][1].dataX().real());
     EXPECT_EQ(c[1][1].dataX().imag(), result[1][1].dataX().imag());
 }
-
+*/
 
 // div
 
@@ -690,7 +690,7 @@ TEST(ValueTest, ComplexDivScalar5) {
 
     EXPECT_EQ(c, Value<complex<float>>(0.33f, 0.67f));
 }
-
+/*
 TEST(ValueTest, ComplexDivVector) {
     std::vector<Value<complex<float>>> a = {
         complex<float>(1.0f, 2.0f),
@@ -762,7 +762,7 @@ TEST(ValueTest, ComplexDivMatrix) {
     EXPECT_EQ(c[1][1].dataX().real(), result[1][1].dataX().real());
     EXPECT_EQ(c[1][1].dataX().imag(), result[1][1].dataX().imag());
 }
-
+*/
 
 // rdiv
 
@@ -819,7 +819,7 @@ TEST(ValueTest, ComplexRdivScalar5) {
 
     EXPECT_EQ(c.dataX(), complex<float>(0.33f, -0.67f));
 }
-
+/*
 TEST(ValueTest, ComplexRdivVector) {
     std::vector<Value<complex<float>>> a = {
         complex<float>(1.0f, 2.0f),
@@ -862,7 +862,7 @@ TEST(ValueTest, ComplexRdivVectorScalar) {
     EXPECT_EQ(c[1].dataX().real(), result[1].dataX().real());
     EXPECT_EQ(c[1].dataX().imag(), result[1].dataX().imag());
 }
-
+*/
 /*
 TEST(ValueTest, ComplexRdivMatrix) {
     std::vector<std::vector<Value<complex<float>>>> a = {

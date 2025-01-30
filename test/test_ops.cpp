@@ -22,11 +22,21 @@ TEST(ValueTest, BasicFloatOperations) {
     EXPECT_EQ((a * b).dataX(), 6.0f);
     EXPECT_EQ((a / b).dataX(), 2.0f / 3.0f);
 
+    EXPECT_EQ((a + b).gradX(), 0.0f);
+    EXPECT_EQ((a - b).gradX(), 0.0f);
+    EXPECT_EQ((a * b).gradX(), 0.0f);
+    EXPECT_EQ((a / b).gradX(), 0.0f);
+
     // using add, sub, mul, & div function
     EXPECT_EQ(add(a, b).dataX(), 5.0f);
     EXPECT_EQ(sub(a, b).dataX(), -1.0f);
     EXPECT_EQ(mul(a, b).dataX(), 6.0f);
     EXPECT_NEAR(div(a, b).dataX(), 2.0f / 3.0f, 0.001);
+
+    EXPECT_EQ(add(a, b).gradX(), 0.0f);
+    EXPECT_EQ(sub(a, b).gradX(), 0.0f);
+    EXPECT_EQ(mul(a, b).gradX(), 0.0f);
+    EXPECT_EQ(div(a, b).gradX(), 0.0f);
 
     // test addition
     Value<float> c = a + b;
