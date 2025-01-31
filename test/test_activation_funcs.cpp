@@ -17,22 +17,36 @@ using namespace ptMgrad;
 
 // relu
 
-TEST(ValueTest, FloatRelu) {
-    Value<float> a = 2.0f;
+#define TEST_VALUE_RELU(TYPE, NAME)                    \
+    TEST(ValueTest, Relu##NAME) {                      \
+        Value<TYPE> a = 2.0;                           \
+                                                       \
+        Value<TYPE> b = ptMgrad::relu(a);              \
+        b.backward();                                  \
+                                                       \
+        EXPECT_EQ(b.dataX(), TYPE(2.0));               \
+        EXPECT_EQ(a.gradX(), TYPE(1.0));               \
+        EXPECT_EQ(b.gradX(), TYPE(1.0));               \
+        a.zero_grad();                                 \
+        b.zero_grad();                                 \
+    }
 
-    Value<float> b = ptMgrad::relu(a);
+TEST_VALUE_RELU(float, Float)
+TEST_VALUE_RELU(double, Double)
+TEST_VALUE_RELU(int, Int)
 
-    EXPECT_EQ(b.dataX(), 2.0f);
-}
 
+#define TEST_VALUE_RELU_SCALAR(TYPE, NAME)            \
+    TEST(ValueTest, Relu##NAME##Scalar) {             \
+        TYPE a = 2.0;                                 \
+                                                      \
+        Value<TYPE> b = ptMgrad::relu(a);             \
+                                                      \
+        EXPECT_EQ(b.dataX(), TYPE(2.0));              \
+    }
 
-TEST(ValueTest, DoubleRelu) {
-    Value<double> a = 2.0;
-
-    Value<double> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b.dataX(), 2.0);
-}
+TEST_VALUE_RELU_SCALAR(float, Float)
+TEST_VALUE_RELU_SCALAR(double, Double)
 
 
 TEST(ValueTest, FloatReluArray) {

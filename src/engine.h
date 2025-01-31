@@ -96,6 +96,14 @@ public:
         grad += T(real, imag);
     }
 
+	void zero_grad() {
+        grad = T(0.0);
+    }
+
+    void set_grad(const T& _grad) {
+        grad = _grad;
+    }
+
     template <class _X> constexpr
     Value& operator=(const Value<_X>& x) {
         // error: ‘double ptMgrad::Value<double>::x’ is private within this context
@@ -146,11 +154,8 @@ public:
     // }
 
     template <class _X> constexpr
-    Value& operator- () {
-        // this->x = -x;
-        // this->y = -y;
-        // return *this;
-		return Value(-x, -y);
+    Value operator- () const {
+        return Value(-x, -y);
     }
 
     constexpr operator bool() const {
@@ -2258,7 +2263,7 @@ inline
 Value <T>
 neg(const Value<T>& _x) {
     if constexpr (is_complex_v<T>) {
-        Value<T> __k = Value<T>(complex<T>(-_x.dataX().real(), -_x.dataX().imag()));
+        Value<T> __k = Value<T>(-_x.dataX().real(), -_x.dataX().imag());
 
 		__k.add_child(&_x);
 
@@ -2267,21 +2272,33 @@ neg(const Value<T>& _x) {
 		});
 
 		return __k;
-
     } else {
-        return Value<T>(-_x.dataX());
+        Value<T> __k(-_x.dataX());
+
+		__k.add_child(&_x);
+
+		__k.set_backward([&_x, &__k]() {
+			_x.add_grad(-__k.get_grad());
+		});
+
+		return __k;
     }
 }
+
 
 template <class T>
 inline
 Value <T>
 neg(const T& _x) {
+    Value <T> __k;
     if constexpr (is_complex_v<T>) {
-        return Value<T>(complex<T>(-_x.real(), -_x.imag()));
+        __k = Value<T>(-_x.real(), -_x.imag());
+        __k.set_grad(T(0.0), T(0.0));
     } else {
-        return Value<T>(-_x);
+        __k = Value<T>(-_x);
+        __k.set_grad(0.0);
     }
+    return __k;
 }
 
 template <class T>
@@ -2509,22 +2526,38 @@ template <class T>
 inline
 Value <T>
 relu(const Value<T>& _x) {
+    Value<T> __k;
     if (_x.dataX() < 0.0) {
-        return Value<T>(0.0);
+        __k = Value<T>(0.0);
     } else {
-        return Value<T>(_x.dataX());
+        __k = Value<T>(_x.dataX());
     }
+
+    __k.add_child(&_x);
+
+    __k.set_backward([&_x, &__k]() {
+        if (_x.dataX() < 0.0) {
+            _x.add_grad(0.0);
+        } else {
+            _x.add_grad(__k.get_grad());
+        }
+    });
+
+    return __k;
 }
 
 template <class T>
 inline
 Value <T>
 relu(const T& _x) {
+    Value <T> __k;
     if (_x < 0.0) {
-        return Value<T>(0.0);
+        __k = Value<T>(0.0);
     } else {
-        return Value<T>(_x);
+        __k = Value<T>(_x);
     }
+    __k.set_grad(0.0);
+    return __k;
 }
 
 

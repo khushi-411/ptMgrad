@@ -18,55 +18,122 @@ TEST(ValueTest, BasicFloatOperations) {
     EXPECT_EQ(b.dataX(), 3.0f);
 
     EXPECT_EQ((a + b).dataX(), 5.0f);
-    EXPECT_EQ((a - b).dataX(), -1.0f);
-    EXPECT_EQ((a * b).dataX(), 6.0f);
-    EXPECT_EQ((a / b).dataX(), 2.0f / 3.0f);
+	(a + b).backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), 1.0f);
 
-    EXPECT_EQ((a + b).gradX(), 0.0f);
-    EXPECT_EQ((a - b).gradX(), 0.0f);
-    EXPECT_EQ((a * b).gradX(), 0.0f);
-    EXPECT_EQ((a / b).gradX(), 0.0f);
+    EXPECT_EQ((a - b).dataX(), -1.0f);
+	a.zero_grad();
+	b.zero_grad();
+	(a - b).backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), -1.0f);
+
+    EXPECT_EQ((a * b).dataX(), 6.0f);
+	a.zero_grad();
+	b.zero_grad();
+	(a * b).backward();
+	EXPECT_EQ(a.gradX(), 3.0f);
+	EXPECT_EQ(b.gradX(), 2.0f);
+
+    EXPECT_EQ((a / b).dataX(), 2.0f / 3.0f);
+	a.zero_grad();
+	b.zero_grad();
+	(a / b).backward();
+	//EXPECT_NEAR(a.gradX(), 1.0f / 3.0f);   // TODO
+	//EXPECT_EQ(b.gradX(), -2.0f / 9.0f);
 
     // using add, sub, mul, & div function
     EXPECT_EQ(add(a, b).dataX(), 5.0f);
-    EXPECT_EQ(sub(a, b).dataX(), -1.0f);
-    EXPECT_EQ(mul(a, b).dataX(), 6.0f);
-    EXPECT_NEAR(div(a, b).dataX(), 2.0f / 3.0f, 0.001);
+	a.zero_grad();
+	b.zero_grad();
+	add(a, b).backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), 1.0f);
 
-    EXPECT_EQ(add(a, b).gradX(), 0.0f);
-    EXPECT_EQ(sub(a, b).gradX(), 0.0f);
-    EXPECT_EQ(mul(a, b).gradX(), 0.0f);
-    EXPECT_EQ(div(a, b).gradX(), 0.0f);
+    EXPECT_EQ(sub(a, b).dataX(), -1.0f);
+	a.zero_grad();
+	b.zero_grad();
+	sub(a, b).backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), -1.0f);
+
+    EXPECT_EQ(mul(a, b).dataX(), 6.0f);
+	a.zero_grad();
+	b.zero_grad();
+	mul(a, b).backward();
+	EXPECT_EQ(a.gradX(), 3.0f);
+	EXPECT_EQ(b.gradX(), 2.0f);
+
+    EXPECT_NEAR(div(a, b).dataX(), 2.0f / 3.0f, 0.001);
+	a.zero_grad();
+	b.zero_grad();
+	div(a, b).backward();
+	//EXPECT_NEAR(a.gradX(), 1.0f / 3.0f);   // TODO
+	//EXPECT_EQ(b.gradX(), -2.0f / 9.0f);
 
     // test addition
     Value<float> c = a + b;
     EXPECT_EQ(c.dataX(), 5.0f);
+	c.backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), 1.0f);
 
     // test substraction
     Value<float> d = a - b;
     EXPECT_EQ(d.dataX(), -1.0f);
+	a.zero_grad();
+	b.zero_grad();
+	d.backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), -1.0f);
 
     // test multiplication
     Value<float> e = a * b;
     EXPECT_EQ(e.dataX(), 6.0f);
+	a.zero_grad();
+	b.zero_grad();
+	e.backward();
+	EXPECT_EQ(a.gradX(), 3.0f);
+	EXPECT_EQ(b.gradX(), 2.0f);
 
     // test division
     Value<float> f = a / b;
     EXPECT_NEAR(f.dataX(), 2.0f / 3.0f, 0.001);
+	a.zero_grad();
+	b.zero_grad();
+	f.backward();
+	//EXPECT_NEAR(a.gradX(), 1.0f / 3.0f, 0.001);   // TODO
+	//EXPECT_EQ(b.gradX(), -2.0f / 9.0f);
 
     // using assignment operator
 
     // test addition
     a += b;
     EXPECT_EQ(a.dataX(), 5.0f);
+	a.zero_grad();
+	b.zero_grad();
+	a.backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), 0.0f);
 
     // test substraction
     a -= b;
     EXPECT_EQ(a.dataX(), 2.0f);
+	a.zero_grad();
+	b.zero_grad();
+	a.backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), 0.0f);
 
     // test multiplication
     a *= b;
     EXPECT_EQ(a.dataX(), 6.0f);
+	a.zero_grad();
+	b.zero_grad();
+	a.backward();
+	EXPECT_EQ(a.gradX(), 1.0f);
+	EXPECT_EQ(b.gradX(), 0.0f);
 
     // test division
     a /= b;
@@ -196,6 +263,11 @@ TEST(ValueTest, BasicScalarOperationsFloat) {
     EXPECT_EQ(b, 3.0f);
 
     EXPECT_EQ(a + b, 5.0f);
+	// FIXME
+	// (a + b).backward();
+	// EXPECT_EQ(a.gradX(), 1.0f);
+	// EXPECT_EQ(b.gradX(), 0.0f);
+
     EXPECT_EQ(a - b, -1.0f);
     EXPECT_EQ(a * b, 6.0f);
     EXPECT_NEAR(a / b, 2.0f / 3.0f, 0.001);
@@ -446,6 +518,10 @@ TEST(ValueTest, BasicFloatDoubleOperations) {
     EXPECT_EQ(b.dataX(), 3.0);
 
     EXPECT_EQ((a + b).dataX(), 5.0);
+	//(a + b).backward();
+	//EXPECT_EQ(a.gradX(), 1.0f);
+	//EXPECT_EQ(b.gradX(), 1.0f);
+
     EXPECT_EQ((a - b).dataX(), -1.0);
     EXPECT_EQ((a * b).dataX(), 6.0);
     EXPECT_NEAR((a / b).dataX(), 2.0 / 3.0, 0.001);
