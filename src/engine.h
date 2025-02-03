@@ -2268,7 +2268,7 @@ neg(const Value<T>& _x) {
 		__k.add_child(&_x);
 
 		__k.set_backward([&_x, &__k]() {
-			_x.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
+			_x.add_grad(-__k.get_grad());
 		});
 
 		return __k;
@@ -2382,7 +2382,7 @@ lt(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     std::vector<bool> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] < _y[i]);
+        __k.push_back(lt(_x[i], _y[i]));
     }
     return __k;
 }
@@ -2394,7 +2394,7 @@ lt(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<bool> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] < _y);
+        __k.push_back(lt(_x[i], _y));
     }
     return __k;
 }
@@ -2468,7 +2468,7 @@ gt(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
     std::vector<bool> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] > _y[i]);
+        __k.push_back(gt(_x[i], _y[i]));
     }
     return __k;
 }
@@ -2480,7 +2480,7 @@ gt(const std::vector<Value<T>>& _x, const T& _y) {
     std::vector<bool> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
-        __k.push_back(_x[i] > _y);
+        __k.push_back(gt(_x[i], _y));
     }
     return __k;
 }

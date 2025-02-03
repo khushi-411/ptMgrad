@@ -20,255 +20,340 @@ using namespace ptMgrad;
 
 // lt
 
-TEST(ValueTest, FloatLt) {
-    Value<float> a = 2.0f;
-    Value<float> b = 3.0f;
+#define TEST_VALUE_LT(TYPE, NAME)                    \
+    TEST(ValueTest, Lt##NAME) {                      \
+        Value<TYPE> a = 2.0;                         \
+        Value<TYPE> b = 3.0;                         \
+                                                     \
+        bool c = ptMgrad::lt(a, b);                  \
+                                                     \
+        EXPECT_EQ(c, true);                          \
+    }
 
-    bool c = ptMgrad::lt(a, b);
+TEST_VALUE_LT(float, Float)
+TEST_VALUE_LT(double, Double)
+TEST_VALUE_LT(int, Int)
 
-    EXPECT_EQ(c, true);
-}
 
-TEST(ValueTest, DoubleLt) {
-    Value<double> a = 2.0;
-    Value<double> b = 3.0;
+#define TEST_VALUE_LT_SCALAR(TYPE, NAME)             \
+    TEST(ValueTest, Lt##NAME##Scalar) {              \
+        Value<TYPE> a = 2.0;                         \
+        TYPE b = 3.0;                                \
+                                                     \
+        bool c = ptMgrad::lt(a, b);                  \
+                                                     \
+        EXPECT_EQ(c, true);                          \
+    }
 
-    bool c = ptMgrad::lt(a, b);
+TEST_VALUE_LT_SCALAR(float, Float)
+TEST_VALUE_LT_SCALAR(double, Double)
+TEST_VALUE_LT_SCALAR(int, Int)
 
-    EXPECT_EQ(c, true);
-}
-/*
-TEST(ValueTest, ScalarLtFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
 
-    bool c = ptMgrad::lt(a, b);
+#define TEST_VALUE_LT_SCALAR_SCALAR(TYPE, NAME)       \
+    TEST(ValueTest, Lt##NAME##ScalarScalar) {         \
+        TYPE a = 2.0;                                 \
+        TYPE b = 3.0;                                 \
+                                                      \
+        bool c = ptMgrad::lt(a, b);                   \
+                                                      \
+        EXPECT_EQ(c, true);                           \
+    }
 
-    EXPECT_EQ(c, true);
-}
-*/
+TEST_VALUE_LT_SCALAR_SCALAR(float, Float)
+TEST_VALUE_LT_SCALAR_SCALAR(double, Double)
+TEST_VALUE_LT_SCALAR_SCALAR(int, Int)
 
-TEST(ValueTest, ScalarLtScalar) {
-    float a = 2.0f;
-    float b = 3.0f;
 
-    bool c = ptMgrad::lt(a, b);
+#define TEST_VALUE_LT_VECTOR_VECTOR(TYPE, NAME)             \
+    TEST(ValueTest, Lt##NAME##VectorVector) {               \
+        std::vector<Value<TYPE>> a = {2.0, -3.0, 4.0};      \
+                                                            \
+        std::vector<Value<TYPE>> b = {5.0, 6.0, -7.0};      \
+                                                            \
+        std::vector<bool> c = ptMgrad::lt(a, b);            \
+                                                            \
+        EXPECT_EQ(c[0], true);                              \
+        EXPECT_EQ(c[1], true);                              \
+        EXPECT_EQ(c[2], false);                             \
+    }
 
-    EXPECT_EQ(c, true);
-}
+TEST_VALUE_LT_VECTOR_VECTOR(float, Float)
+TEST_VALUE_LT_VECTOR_VECTOR(double, Double)
+TEST_VALUE_LT_VECTOR_VECTOR(int, Int)
 
-TEST(ValueTest, VectorLtVector) {
-    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
-    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
 
-    std::vector<bool> c = ptMgrad::lt(a, b);
+#define TEST_VALUE_LT_VECTOR_SCALAR(TYPE, NAME)             \
+    TEST(ValueTest, Lt##NAME##VectorScalar) {               \
+        std::vector<Value<TYPE>> a = {2.0, -3.0, 4.0};      \
+                                                            \
+        TYPE b = 5.0;                                       \
+                                                            \
+        std::vector<bool> c = ptMgrad::lt(a, b);            \
+                                                            \
+        EXPECT_EQ(c[0], true);                              \
+        EXPECT_EQ(c[1], true);                              \
+        EXPECT_EQ(c[2], true);                              \
+    }
 
-    EXPECT_EQ(c[0], true);
-    EXPECT_EQ(c[1], false);
-    EXPECT_EQ(c[2], true);
-}
+TEST_VALUE_LT_VECTOR_SCALAR(float, Float)
+TEST_VALUE_LT_VECTOR_SCALAR(double, Double)
+TEST_VALUE_LT_VECTOR_SCALAR(int, Int)
 
-TEST(ValueTest, VectorLtScalar) {
-    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
-    float b = 5.0f;
 
-    std::vector<bool> c = ptMgrad::lt(a, b);
+#define TEST_VALUE_LT_MATRIX_MATRIX(TYPE, NAME)                   \
+    TEST(ValueTest, Lt##NAME##MatrixMatrix) {                     \
+        std::vector<std::vector<Value<TYPE>>> a = {               \
+            {2.0, 3.0, 4.0},                                      \
+            {5.0, -6.0, 7.0}                                      \
+        };                                                        \
+                                                                  \
+        std::vector<std::vector<Value<TYPE>>> b = {               \
+            {5.0, 6.0, -7.0},                                     \
+            {2.0, 3.0, 4.0}                                       \
+        };                                                        \
+                                                                  \
+        std::vector<std::vector<bool>> c = ptMgrad::lt(a, b);     \
+                                                                  \
+        EXPECT_EQ(c[0][0], true);                                 \
+        EXPECT_EQ(c[0][1], true);                                 \
+        EXPECT_EQ(c[0][2], false);                                \
+        EXPECT_EQ(c[1][0], false);                                \
+        EXPECT_EQ(c[1][1], true);                                 \
+        EXPECT_EQ(c[1][2], false);                                \
+    }
 
-    EXPECT_EQ(c[0], true);
-    EXPECT_EQ(c[1], true);
-    EXPECT_EQ(c[2], true);
-}
+TEST_VALUE_LT_MATRIX_MATRIX(float, Float)
+TEST_VALUE_LT_MATRIX_MATRIX(double, Double)
+TEST_VALUE_LT_MATRIX_MATRIX(int, Int)
 
-TEST(ValueTest, MatrixLtMatrix) {
-    std::vector<std::vector<Value<float>>> a = {
-        {2.0f, 3.0f, 4.0f},
-        {5.0f, -6.0f, 7.0f}
-    };
-    std::vector<std::vector<Value<float>>> b = {
-        {5.0f, -6.0f, 7.0f},
-        {2.0f, 3.0f, 4.0f}
-    };
 
-    std::vector<std::vector<bool>> c = ptMgrad::lt(a, b);
+#define TEST_VALUE_LT_MATRIX_MATRIX_VALUE(TYPE, NAME)                   \
+    TEST(ValueTest, Lt##NAME##MatrixMatrixValue) {                      \
+        std::vector<std::vector<Value<TYPE>>> a = {                     \
+            {Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)},     \
+            {Value<TYPE>(5.0), Value<TYPE>(-6.0), Value<TYPE>(7.0)}     \
+        };                                                              \
+                                                                        \
+        std::vector<std::vector<Value<TYPE>>> b = {                     \
+            {Value<TYPE>(0.0), Value<TYPE>(6.0), Value<TYPE>(-7.0)},    \
+            {Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)}      \
+        };                                                              \
+                                                                        \
+        std::vector<std::vector<bool>> c = ptMgrad::lt(a, b);           \
+                                                                        \
+        EXPECT_EQ(c[0][0], false);                                      \
+        EXPECT_EQ(c[0][1], true);                                       \
+        EXPECT_EQ(c[0][2], false);                                      \
+        EXPECT_EQ(c[1][0], false);                                      \
+        EXPECT_EQ(c[1][1], true);                                       \
+        EXPECT_EQ(c[1][2], false);                                      \
+    }
 
-    EXPECT_EQ(c[0][0], true);
-    EXPECT_EQ(c[0][1], false);
-    EXPECT_EQ(c[0][2], true);
-    EXPECT_EQ(c[1][0], false);
-    EXPECT_EQ(c[1][1], true);
-    EXPECT_EQ(c[1][2], false);
-}
+TEST_VALUE_LT_MATRIX_MATRIX_VALUE(float, Float)
+TEST_VALUE_LT_MATRIX_MATRIX_VALUE(double, Double)
+TEST_VALUE_LT_MATRIX_MATRIX_VALUE(int, Int)
 
-TEST(ValueTest, MatrixLtMatrixVector) {
-    std::vector<std::vector<Value<float>>> a = {
-        {Value<float>(2.0f), Value<float>(3.0f), Value<float>(4.0f)},
-        {Value<float>(5.0f), Value<float>(-6.0f), Value<float>(7.0f)}
-    };
 
-    std::vector<std::vector<Value<float>>> b = {
-        {Value<float>(5.0f), Value<float>(-6.0f), Value<float>(7.0f)},
-        {Value<float>(2.0f), Value<float>(3.0f), Value<float>(4.0f)}
-    };
+// FIXME
+#define TEST_VALUE_LT_MATRIX_SCALAR(TYPE, NAME)                    \
+    TEST(ValueTest, Lt##NAME##MatrixScalar) {                      \
+        std::vector<std::vector<Value<TYPE>>> a = {                \
+            {2.0, 3.0, 4.0},                                       \
+            {5.0, -6.0, 7.0}                                       \
+        };                                                         \
+                                                                   \
+        TYPE b = 5.0;                                              \
+                                                                   \
+        std::vector<std::vector<bool>> c = ptMgrad::lt(a, b);      \
+                                                                   \
+        EXPECT_EQ(c[0][0], true);                                  \
+        EXPECT_EQ(c[0][1], true);                                  \
+        EXPECT_EQ(c[0][2], true);                                  \
+    }
 
-    std::vector<std::vector<bool>> c = ptMgrad::lt(a, b);
+TEST_VALUE_LT_MATRIX_SCALAR(float, Float)
+TEST_VALUE_LT_MATRIX_SCALAR(double, Double)
+TEST_VALUE_LT_MATRIX_SCALAR(int, Int)
 
-    EXPECT_EQ(c[0][0], true);
-    EXPECT_EQ(c[0][1], false);
-    EXPECT_EQ(c[0][2], true);
-    EXPECT_EQ(c[1][0], false);
-    EXPECT_EQ(c[1][1], true);
-    EXPECT_EQ(c[1][2], false);
-}
-
-TEST(ValueTest, MatrixLtMatrixScalar) {
-    std::vector<std::vector<Value<float>>> a = {
-        {2.0f, 3.0f, 4.0f},
-        {5.0f, -6.0f, 7.0f}
-    };
-    float b = 5.0f;
-
-    std::vector<std::vector<bool>> c = ptMgrad::lt(a, b);
-
-    EXPECT_EQ(c[0][0], true);
-    EXPECT_EQ(c[0][1], true);
-    EXPECT_EQ(c[0][2], true);
-    //EXPECT_EQ(c[1][0], false);
-    //EXPECT_EQ(c[1][1], true);
-    //EXPECT_EQ(c[1][2], false);
-}
 
 // gt
 
-TEST(ValueTest, FloatGt) {
-    Value<float> a = 2.0f;
-    Value<float> b = 3.0f;
+#define TEST_VALUE_GT(TYPE, NAME)                    \
+    TEST(ValueTest, Gt##NAME) {                      \
+        Value<TYPE> a = 2.0;                         \
+        Value<TYPE> b = 3.0;                         \
+                                                     \
+        bool c = ptMgrad::gt(a, b);                  \
+                                                     \
+        EXPECT_EQ(c, false);                         \
+    }
 
-    bool c = ptMgrad::gt(a, b);
+TEST_VALUE_GT(float, Float)
+TEST_VALUE_GT(double, Double)
+TEST_VALUE_GT(int, Int)
 
-    EXPECT_EQ(c, false);
-}
 
-TEST(ValueTest, DoubleGt) {
-    Value<double> a = 2.0;
-    Value<double> b = 3.0;
+#define TEST_VALUE_GT_VALUE_SCALAR(TYPE, NAME)       \
+    TEST(ValueTest, Gt##NAME##Scalar) {              \
+        Value<TYPE> a = 2.0;                         \
+        TYPE b = 3.0;                                \
+                                                     \
+        bool c = ptMgrad::gt(a, b);                  \
+                                                     \
+        EXPECT_EQ(c, false);                         \
+    }
 
-    bool c = ptMgrad::gt(a, b);
+TEST_VALUE_GT_VALUE_SCALAR(float, Float)
+TEST_VALUE_GT_VALUE_SCALAR(double, Double)
+TEST_VALUE_GT_VALUE_SCALAR(int, Int)
 
-    EXPECT_EQ(c, false);
-}
+
+#define TEST_VALUE_GT_SCALAR_SCALAR(TYPE, NAME)       \
+    TEST(ValueTest, Gt##NAME##ScalarScalar) {         \
+        TYPE a = -2.0;                                \
+        TYPE b = 3.0;                                 \
+                                                      \
+        bool c = ptMgrad::gt(a, b);                   \
+                                                      \
+        EXPECT_EQ(c, false);                          \
+    }
+
+TEST_VALUE_GT_SCALAR_SCALAR(float, Float)
+TEST_VALUE_GT_SCALAR_SCALAR(double, Double)
+TEST_VALUE_GT_SCALAR_SCALAR(int, Int)
+
+
+// FIXME
+#define TEST_VALUE_GT_VECTOR_VECTOR(TYPE, NAME)                       \
+    TEST(ValueTest, Gt##NAME##VectorVector) {                         \
+        std::vector<Value<TYPE>> a = {                                \
+            Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)      \
+        };                                                            \
+                                                                      \
+        std::vector<Value<TYPE>> b = {                                \
+            Value<TYPE>(5.0), Value<TYPE>(-6.0), Value<TYPE>(7.0)     \
+        };                                                            \
+                                                                      \
+        std::vector<bool> c = ptMgrad::gt(a, b);                      \
+                                                                      \
+        EXPECT_EQ(c[0], false);                                       \
+        EXPECT_EQ(c[2], false);                                       \
+    }
+
+TEST_VALUE_GT_VECTOR_VECTOR(float, Float)
+TEST_VALUE_GT_VECTOR_VECTOR(double, Double)
+TEST_VALUE_GT_VECTOR_VECTOR(int, Int)
+
+
+// FIXME
+#define TEST_VALUE_GT_VECTOR_VALUE(TYPE, NAME)                        \
+    TEST(ValueTest, Gt##NAME##VectorValue) {                          \
+        std::vector<Value<TYPE>> a = {                                \
+            Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)      \
+        };                                                            \
+                                                                      \
+        std::vector<Value<TYPE>> b = {5.0, -6.0, 7.0};                \
+                                                                      \
+        std::vector<bool> c = ptMgrad::gt(a, b);                      \
+                                                                      \
+        EXPECT_EQ(c[0], false);                                       \
+        EXPECT_EQ(c[1], false);                                       \
+        EXPECT_EQ(c[2], false);                                       \
+    }
+
+TEST_VALUE_GT_VECTOR_VALUE(float, Float)
+TEST_VALUE_GT_VECTOR_VALUE(double, Double)
+TEST_VALUE_GT_VECTOR_VALUE(int, Int)
+
+// FIXME
 /*
-TEST(ValueTest, ScalarGtFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
+#define TEST_VALUE_GT_VECTOR_SCALAR(TYPE, NAME)                       \
+    TEST(ValueTest, Gt##NAME##VectorScalar) {                         \
+        std::vector<Value<TYPE>> a = {                                \
+            Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(8.0)      \
+        };                                                            \
+                                                                      \
+        TYPE b =  5.0;                                                \
+                                                                      \
+        std::vector<bool> c = ptMgrad::gt(a, b);                      \
+                                                                      \
+        EXPECT_EQ(c[0], false);                                       \
+        EXPECT_EQ(c[1], false);                                       \
+        EXPECT_EQ(c[2], true);                                        \
+    }
 
-    bool c = ptMgrad::gt(a, b);
-
-    EXPECT_EQ(c, false);
-}
+TEST_VALUE_GT_VECTOR_SCALAR(float, Float)
+TEST_VALUE_GT_VECTOR_SCALAR(double, Double)
+TEST_VALUE_GT_VECTOR_SCALAR(int, Int)
 */
 
-TEST(ValueTest, ScalarGtScalar) {
-    float a = 2.0f;
-    float b = 3.0f;
 
-    bool c = ptMgrad::gt(a, b);
+#define TEST_VALUE_GT_VALUE_SCALAR_SCALAR(TYPE, NAME)                 \
+    TEST(ValueTest, Gt##NAME##ValueScalarScalar) {                    \
+        std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};                 \
+                                                                      \
+        TYPE b = 5.0;                                                 \
+                                                                      \
+        std::vector<bool> c = ptMgrad::gt(a, b);                      \
+                                                                      \
+        EXPECT_EQ(c[0], false);                                       \
+        EXPECT_EQ(c[1], false);                                       \
+        EXPECT_EQ(c[2], false);                                       \
+    }
 
-    EXPECT_EQ(c, false);
-}
+TEST_VALUE_GT_VALUE_SCALAR_SCALAR(float, Float)
+TEST_VALUE_GT_VALUE_SCALAR_SCALAR(double, Double)
+TEST_VALUE_GT_VALUE_SCALAR_SCALAR(int, Int)
 
-TEST(ValueTest, VectorGtVector) {
-    std::vector<Value<float>> a = {
-        Value<float>(2.0f),
-        Value<float>(3.0f),
-        Value<float>(4.0f)
-    };
-    std::vector<Value<float>> b = {
-        Value<float>(5.0f),
-        Value<float>(-6.0f),
-        Value<float>(7.0f)
-    };
 
-    std::vector<bool> c = ptMgrad::gt(a, b);
+// FIXME
+#define TEST_VALUE_GT_MATRIX_MATRIX(TYPE, NAME)                         \
+    TEST(ValueTest, Gt##NAME##MatrixMatrix) {                           \
+        std::vector<std::vector<Value<TYPE>>> a = {                     \
+            {Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)},     \
+            {Value<TYPE>(5.0), Value<TYPE>(-6.0), Value<TYPE>(7.0)}     \
+        };                                                              \
+                                                                        \
+        std::vector<std::vector<Value<TYPE>>> b = {                     \
+            {Value<TYPE>(5.0), Value<TYPE>(-6.0), Value<TYPE>(7.0)},    \
+            {Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)}      \
+        };                                                              \
+                                                                        \
+        std::vector<std::vector<bool>> c = ptMgrad::gt(a, b);           \
+                                                                        \
+        EXPECT_EQ(c[0][0], false);                                      \
+        EXPECT_EQ(c[0][1], false);                                      \
+        EXPECT_EQ(c[0][2], false);                                      \
+        EXPECT_EQ(c[1][0], false);                                      \
+        EXPECT_EQ(c[1][1], false);                                      \
+        EXPECT_EQ(c[1][2], false);                                      \
+    }
 
-    EXPECT_EQ(c[0], false);
-    EXPECT_EQ(c[1], false);  // TODO: check this 
-    EXPECT_EQ(c[2], false);
-}
+TEST_VALUE_GT_MATRIX_MATRIX(float, Float)
+TEST_VALUE_GT_MATRIX_MATRIX(double, Double)
+TEST_VALUE_GT_MATRIX_MATRIX(int, Int)
 
-TEST(ValueTest, VectorGtVectorScalar) {
-    std::vector<Value<float>> a = {
-        Value<float>(2.0f),
-        Value<float>(3.0f),
-        Value<float>(4.0f)
-    };
-    std::vector<Value<float>> b = {5.0f, -6.0f, 7.0f};
 
-    std::vector<bool> c = ptMgrad::gt(a, b);
+#define TEST_VALUE_GT_MATRIX_SCALAR(TYPE, NAME)                         \
+    TEST(ValueTest, Gt##NAME##MatrixScalar) {                           \
+        std::vector<std::vector<Value<TYPE>>> a = {                     \
+            {Value<TYPE>(2.0), Value<TYPE>(3.0), Value<TYPE>(4.0)},     \
+            {Value<TYPE>(5.0), Value<TYPE>(-6.0), Value<TYPE>(7.0)}     \
+        };                                                              \
+                                                                        \
+        TYPE b = 5.0;                                                   \
+                                                                        \
+        std::vector<std::vector<bool>> c = ptMgrad::gt(a, b);           \
+                                                                        \
+        EXPECT_EQ(c[0][0], false);                                      \
+        EXPECT_EQ(c[0][1], false);                                      \
+        EXPECT_EQ(c[0][2], false);                                      \
+        EXPECT_EQ(c[1][0], false);                                      \
+        EXPECT_EQ(c[1][1], false);                                      \
+        EXPECT_EQ(c[1][2], false);                                      \
+    }
 
-    EXPECT_EQ(c[0], false);
-    EXPECT_EQ(c[1], false);  // TODO: check this
-    EXPECT_EQ(c[2], false);
-}
-
-TEST(ValueTest, VectorGtScalar) {
-    std::vector<Value<float>> a = {
-        Value<float>(2.0f),
-        Value<float>(3.0f),
-        Value<float>(4.0f)
-    };
-    float b = 5.0f;
-
-    std::vector<bool> c = ptMgrad::gt(a, b);
-
-    EXPECT_EQ(c[0], false);
-    EXPECT_EQ(c[1], false);
-    EXPECT_EQ(c[2], false);
-}
-
-TEST(ValueTest, VectorGtScalarScalar) {
-    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
-    float b = 5.0f;
-
-    std::vector<bool> c = ptMgrad::gt(a, b);
-
-    EXPECT_EQ(c[0], false);
-    EXPECT_EQ(c[1], false);
-    EXPECT_EQ(c[2], false);
-}
-
-TEST(ValueTest, MatrixGtMatrix) {
-    std::vector<std::vector<Value<float>>> a = {
-        {Value<float>(2.0f), Value<float>(3.0f), Value<float>(4.0f)},
-        {Value<float>(5.0f), Value<float>(-6.0f), Value<float>(7.0f)}
-    };
-    std::vector<std::vector<Value<float>>> b = {
-        {Value<float>(5.0f), Value<float>(-6.0f), Value<float>(7.0f)},
-        {Value<float>(2.0f), Value<float>(3.0f), Value<float>(4.0f)}
-    };
-
-    std::vector<std::vector<bool>> c = ptMgrad::gt(a, b);
-
-    EXPECT_EQ(c[0][0], false);
-    EXPECT_EQ(c[0][1], false);
-    EXPECT_EQ(c[0][2], false);
-    EXPECT_EQ(c[1][0], false);  // TODO: check this
-    EXPECT_EQ(c[1][1], false);
-    EXPECT_EQ(c[1][2], false);  // TODO: check this
-}
-
-TEST(ValueTest, MatrixGtScalar) {
-    std::vector<std::vector<Value<float>>> a = {
-        {Value<float>(2.0f), Value<float>(3.0f), Value<float>(4.0f)},
-        {Value<float>(5.0f), Value<float>(-6.0f), Value<float>(7.0f)}
-    };
-    float b = 5.0f;
-
-    std::vector<std::vector<bool>> c = ptMgrad::gt(a, b);
-
-    EXPECT_EQ(c[0][0], false);
-    EXPECT_EQ(c[0][1], false);
-    EXPECT_EQ(c[0][2], false);
-    EXPECT_EQ(c[1][0], false);  // TODO: check this
-    EXPECT_EQ(c[1][1], false);
-    EXPECT_EQ(c[1][2], false);  // TODO: check this
-}
+TEST_VALUE_GT_MATRIX_SCALAR(float, Float)
+TEST_VALUE_GT_MATRIX_SCALAR(double, Double)
+TEST_VALUE_GT_MATRIX_SCALAR(int, Int)

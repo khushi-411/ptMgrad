@@ -47,131 +47,95 @@ TEST_VALUE_RELU(int, Int)
 
 TEST_VALUE_RELU_SCALAR(float, Float)
 TEST_VALUE_RELU_SCALAR(double, Double)
+TEST_VALUE_RELU_SCALAR(int, Int)
 
 
-TEST(ValueTest, FloatReluArray) {
-    std::vector<Value<float>> a = {2.0f, 3.0f, 4.0f};
+#define TEST_VALUE_RELU_ARRAY(TYPE, NAME)                    \
+    TEST(ValueTest, Relu##NAME##Array) {                     \
+        std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};        \
+                                                             \
+        std::vector<Value<TYPE>> b = ptMgrad::relu(a);       \
+                                                             \
+        EXPECT_EQ(b[0].dataX(), TYPE(2.0));                  \
+        EXPECT_EQ(b[1].dataX(), TYPE(3.0));                  \
+        EXPECT_EQ(b[2].dataX(), TYPE(4.0));                  \
+    }
 
-    std::vector<Value<float>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0].dataX(), 2.0f);
-    EXPECT_EQ(b[1].dataX(), 3.0f);
-    EXPECT_EQ(b[2].dataX(), 4.0f);
-}
-
-
-TEST(ValueTest, DoubleReluArray) {
-    std::vector<Value<double>> a = {2.0, 3.0, 4.0};
-
-    std::vector<Value<double>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0].dataX(), 2.0);
-    EXPECT_EQ(b[1].dataX(), 3.0);
-    EXPECT_EQ(b[2].dataX(), 4.0);
-}
+TEST_VALUE_RELU_ARRAY(float, Float)
+TEST_VALUE_RELU_ARRAY(double, Double)
+TEST_VALUE_RELU_ARRAY(int, Int)
 
 
-TEST(ValueTest, FloatReluArrayNegative) {
-    std::vector<Value<float>> a = {-2.0f, -3.0f, -4.0f};
+#define TEST_VALUE_RELU_ARRAY_NEGATIVE(TYPE, NAME)            \
+    TEST(ValueTest, Relu##NAME##ArrayNegative) {              \
+        std::vector<Value<TYPE>> a = {-2.0, -3.0, -4.0};      \
+                                                              \
+        std::vector<Value<TYPE>> b = ptMgrad::relu(a);        \
+                                                              \
+        EXPECT_EQ(b[0].dataX(), TYPE(0.0));                   \
+        EXPECT_EQ(b[1].dataX(), TYPE(0.0));                   \
+        EXPECT_EQ(b[2].dataX(), TYPE(0.0));                   \
+    }
 
-    std::vector<Value<float>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0].dataX(), 0.0f);
-    EXPECT_EQ(b[1].dataX(), 0.0f);
-    EXPECT_EQ(b[2].dataX(), 0.0f);
-}
-
-
-TEST(ValueTest, DoubleReluArrayNegative) {
-    std::vector<Value<double>> a = {-2.0, -3.0, -4.0};
-
-    std::vector<Value<double>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0].dataX(), 0.0);
-    EXPECT_EQ(b[1].dataX(), 0.0);
-    EXPECT_EQ(b[2].dataX(), 0.0);
-}
+TEST_VALUE_RELU_ARRAY_NEGATIVE(float, Float)
+TEST_VALUE_RELU_ARRAY_NEGATIVE(double, Double)
+TEST_VALUE_RELU_ARRAY_NEGATIVE(int, Int)
 
 
-TEST(ValueTest, FloatRelu2DArray) {
-    std::vector<std::vector<Value<float>>> a = {{2.0f, 3.0f, 4.0f}, {5.0f, 6.0f, 7.0f}};
+#define TEST_VALUE_RELU_2D_ARRAY(TYPE, NAME)                                                \
+    TEST(ValueTest, Relu##NAME##2DArray) {                                                  \
+        std::vector<std::vector<Value<TYPE>>> a = {{2.0, 3.0, 4.0}, {5.0, 6.0, 7.0}};       \
+                                                                                            \
+        std::vector<std::vector<Value<TYPE>>> b = ptMgrad::relu(a);                         \
+                                                                                            \
+        EXPECT_EQ(b[0][0].dataX(), TYPE(2.0));                                              \
+        EXPECT_EQ(b[0][1].dataX(), TYPE(3.0));                                              \
+        EXPECT_EQ(b[0][2].dataX(), TYPE(4.0));                                              \
+        EXPECT_EQ(b[1][0].dataX(), TYPE(5.0));                                              \
+        EXPECT_EQ(b[1][1].dataX(), TYPE(6.0));                                              \
+        EXPECT_EQ(b[1][2].dataX(), TYPE(7.0));                                              \
+    }
 
-    std::vector<std::vector<Value<float>>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0][0].dataX(), 2.0f);
-    EXPECT_EQ(b[0][1].dataX(), 3.0f);
-    EXPECT_EQ(b[0][2].dataX(), 4.0f);
-    EXPECT_EQ(b[1][0].dataX(), 5.0f);
-    EXPECT_EQ(b[1][1].dataX(), 6.0f);
-    EXPECT_EQ(b[1][2].dataX(), 7.0f);
-}
-
-
-TEST(ValueTest, DoubleRelu2DArray) {
-    std::vector<std::vector<Value<double>>> a = {{2.0, 3.0, 4.0}, {5.0, 6.0, 7.0}};
-
-    std::vector<std::vector<Value<double>>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0][0].dataX(), 2.0);
-    EXPECT_EQ(b[0][1].dataX(), 3.0);
-    EXPECT_EQ(b[0][2].dataX(), 4.0);
-    EXPECT_EQ(b[1][0].dataX(), 5.0);
-    EXPECT_EQ(b[1][1].dataX(), 6.0);
-    EXPECT_EQ(b[1][2].dataX(), 7.0);
-}
+TEST_VALUE_RELU_2D_ARRAY(float, Float)
+TEST_VALUE_RELU_2D_ARRAY(double, Double)
+TEST_VALUE_RELU_2D_ARRAY(int, Int)
 
 
-TEST(ValueTest, FloatValueRelu1DArray) {
-    std::vector<Value<float>> a = {Value<float>(2.0f), Value<float>(-3.0f), Value<float>(4.0f)};
+#define TEST_VALUE_RELU_1D_ARRAY_VALUE(TYPE, NAME)                           \
+    TEST(ValueTest, Relu##NAME##1DArrayValue) {                              \
+        std::vector<Value<TYPE>> a = {                                       \
+            Value<TYPE>(2.0), Value<TYPE>(-3.0), Value<TYPE>(4.0)            \
+        };                                                                   \
+                                                                             \
+        std::vector<Value<TYPE>> b = ptMgrad::relu(a);                       \
+                                                                             \
+        EXPECT_EQ(b[0].dataX(), TYPE(2.0));                                  \
+        EXPECT_EQ(b[1].dataX(), TYPE(0.0));                                  \
+        EXPECT_EQ(b[2].dataX(), TYPE(4.0));                                  \
+    }
 
-    std::vector<Value<float>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0].dataX(), 2.0f);
-    EXPECT_EQ(b[1].dataX(), 0.0f);
-    EXPECT_EQ(b[2].dataX(), 4.0f);
-}
-
-
-TEST(ValueTest, DoubleValueRelu1DArray) {
-    std::vector<Value<double>> a = {Value<double>(2.0), Value<double>(-3.0), Value<double>(4.0)};
-
-    std::vector<Value<double>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0].dataX(), 2.0);
-    EXPECT_EQ(b[1].dataX(), 0.0);
-    EXPECT_EQ(b[2].dataX(), 4.0);
-}
+TEST_VALUE_RELU_1D_ARRAY_VALUE(float, Float)
+TEST_VALUE_RELU_1D_ARRAY_VALUE(double, Double)
+TEST_VALUE_RELU_1D_ARRAY_VALUE(int, Int)
 
 
-TEST(ValueTest, FloatValueRelu2DArray) {
-    std::vector<std::vector<Value<float>>> a = {
-        {Value<float>(2.0f), Value<float>(-3.0f), Value<float>(4.0f)},
-        {Value<float>(5.0f), Value<float>(6.0f), Value<float>(-7.0f)}
-    };
+#define TEST_VALUE_RELU_2D_ARRAY_VALUE(TYPE, NAME)                            \
+    TEST(ValueTest, Relu##NAME##2DArrayValue) {                               \
+        std::vector<std::vector<Value<TYPE>>> a = {                           \
+            {Value<TYPE>(2.0), Value<TYPE>(-3.0), Value<TYPE>(4.0)},          \
+            {Value<TYPE>(5.0), Value<TYPE>(6.0), Value<TYPE>(-7.0)}           \
+        };                                                                    \
+                                                                              \
+        std::vector<std::vector<Value<TYPE>>> b = ptMgrad::relu(a);           \
+                                                                              \
+        EXPECT_EQ(b[0][0].dataX(), TYPE(2.0));                                \
+        EXPECT_EQ(b[0][1].dataX(), TYPE(0.0));                                \
+        EXPECT_EQ(b[0][2].dataX(), TYPE(4.0));                                \
+        EXPECT_EQ(b[1][0].dataX(), TYPE(5.0));                                \
+        EXPECT_EQ(b[1][1].dataX(), TYPE(6.0));                                \
+        EXPECT_EQ(b[1][2].dataX(), TYPE(0.0));                                \
+    }
 
-    std::vector<std::vector<Value<float>>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0][0].dataX(), 2.0f);
-    EXPECT_EQ(b[0][1].dataX(), 0.0f);
-    EXPECT_EQ(b[0][2].dataX(), 4.0f);
-    EXPECT_EQ(b[1][0].dataX(), 5.0f);
-    EXPECT_EQ(b[1][1].dataX(), 6.0f);
-    EXPECT_EQ(b[1][2].dataX(), 0.0f);
-}
-
-
-TEST(ValueTest, DoubleValueRelu2DArray) {
-    std::vector<std::vector<Value<double>>> a = {
-        {Value<double>(2.0), Value<double>(-3.0), Value<double>(4.0)},
-        {Value<double>(5.0), Value<double>(6.0), Value<double>(-7.0)}
-    };
-
-    std::vector<std::vector<Value<double>>> b = ptMgrad::relu(a);
-
-    EXPECT_EQ(b[0][0].dataX(), 2.0);
-    EXPECT_EQ(b[0][1].dataX(), 0.0);
-    EXPECT_EQ(b[0][2].dataX(), 4.0);
-    EXPECT_EQ(b[1][0].dataX(), 5.0);
-    EXPECT_EQ(b[1][1].dataX(), 6.0);
-    EXPECT_EQ(b[1][2].dataX(), 0.0);
-}
+TEST_VALUE_RELU_2D_ARRAY_VALUE(float, Float)
+TEST_VALUE_RELU_2D_ARRAY_VALUE(double, Double)
+TEST_VALUE_RELU_2D_ARRAY_VALUE(int, Int)
