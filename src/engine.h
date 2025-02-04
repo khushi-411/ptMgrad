@@ -186,7 +186,8 @@ public:
         build_topo(this);
 
         // go one variable at a time and apply the chain rule to get its gradient
-        this->grad = 1.0;
+        this->grad = T(1.0);
+
         for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
             (*it)->backward_fn();
         }
@@ -319,7 +320,7 @@ operator+ (const Value<T>& x, const Value<T>& y) {
             x.dataX().real() + y.dataX().real(),
             x.dataX().imag() + y.dataX().imag()
         );
-		Value<T> __k = Value<T>(val);
+		Value<T> __k(val);
 
 		__k.add_child(&x);
 		__k.add_child(&y);
@@ -332,8 +333,7 @@ operator+ (const Value<T>& x, const Value<T>& y) {
         return __k;
     }
 
-	Value<T> __k = x;
-    __k += y;
+	Value<T> __k(x.dataX() + y.dataX(), x.dataY() + y.dataY());
 
     __k.add_child(&x);
     __k.add_child(&y);
@@ -1003,8 +1003,13 @@ operator/ (const Value<T>& x, const T& y) {
         throw std::invalid_argument("Division by zero");
     }
 
-    Value<T> __k = x;
-    __k /= y;
+    //Value<T> __k = x;
+    //__k /= y;
+
+    using Type = std::conditional_t<std::is_integral_v<T>, double, T>;
+    Type _k = static_cast<Type>(x.dataX()) / static_cast<Type>(y);
+
+    Value<T> __k = Value<T>(static_cast<T>(_k));
 
     __k.add_child(&x);
 
@@ -1083,8 +1088,14 @@ operator/ (const T& x, const T& y) {
         throw std::invalid_argument("Division by zero");
     }
 
-    Value<T> __k = x;
-    __k /= y;
+    //Value<T> __k = x;
+    //__k /= y;
+
+    using Type = std::conditional_t<std::is_integral_v<T>, double, T>;
+    Type _k = static_cast<Type>(x) / static_cast<Type>(y);
+
+    Value<T> __k = Value<T>(static_cast<T>(_k));
+
     return __k;
 }
 
@@ -2350,14 +2361,14 @@ template <class T>
 inline
 bool
 lt(const Value<T>& _x, const Value<T>& _y) {
-    return _x < _y;
+    return _x.dataX() < _y.dataX();
 }
 
 template <class T>
 inline
 bool
 lt(const Value<T>& _x, const T& _y) {
-    return _x < _y;
+    return _x.dataX() < _y;
 }
 
 template <class T>
@@ -2436,14 +2447,14 @@ template <class T>
 inline
 bool
 gt(const Value<T>& _x, const Value<T>& _y) {
-    return _x > _y;
+    return _x.dataX() > _y.dataX();
 }
 
 template <class T>
 inline
 bool
 gt(const Value<T>& _x, const T& _y) {
-    return _x > _y;
+    return _x.dataX() > _y;
 }
 
 template <class T>

@@ -15,7 +15,7 @@ public:
     virtual std::vector<Value<T>*> parameters() = 0;
     virtual void zero_grad() {
         for (auto* p : parameters()) {
-            p->grad = 0.0;
+            p->set_grad(0.0);
         }
     }
 };

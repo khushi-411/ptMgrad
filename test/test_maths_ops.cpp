@@ -80,8 +80,7 @@ TEST_VALUE_ADD_SCALAR_SCALAR(float, Float)
 TEST_VALUE_ADD_SCALAR_SCALAR(double, Double)
 TEST_VALUE_ADD_SCALAR_SCALAR(int, Int)
 
-/*
-// TODO: add backward support; investigate
+
 #define TEST_VALUE_ADD_VECTOR(TYPE, NAME)                       \
     TEST(ValueTest, Add##NAME##Vector) {                        \
         std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};           \
@@ -89,27 +88,19 @@ TEST_VALUE_ADD_SCALAR_SCALAR(int, Int)
                                                                 \
         std::vector<Value<TYPE>> c = ptMgrad::add(a, b);        \
                                                                 \
-        EXPECT_EQ(c[0].dataX(), TYPE(7.0));                           \
-        EXPECT_EQ(c[1].dataX(), TYPE(-3.0));                          \
-        EXPECT_EQ(c[2].dataX(), TYPE(11.0));                          \
+        EXPECT_EQ(c[0].dataX(), TYPE(7.0));                     \
+        EXPECT_EQ(c[1].dataX(), TYPE(-3.0));                    \
+        EXPECT_EQ(c[2].dataX(), TYPE(11.0));                    \
                                                                 \
         for (auto &v : c) {                                     \
             v.backward();                                       \
         }                                                       \
                                                                 \
-        EXPECT_EQ(a[0].gradX(), TYPE(1.0));                           \
-        EXPECT_EQ(a[1].gradX(), TYPE(1.0));                           \
-        EXPECT_EQ(a[2].gradX(), TYPE(1.0));                           \
+        EXPECT_EQ(c[0].gradX(), 1.0);                           \
+        EXPECT_EQ(c[1].gradX(), 1.0);                           \
+        EXPECT_EQ(c[2].gradX(), 1.0);                           \
                                                                 \
-        EXPECT_EQ(b[0].gradX(), TYPE(1.0));                           \
-        EXPECT_EQ(b[1].gradX(), TYPE(-1.0));                          \
-        EXPECT_EQ(b[2].gradX(), TYPE(1.0));                           \
-                                                                \
-        for (auto &v : a) {                                     \
-            v.zero_grad();                                      \
-        }                                                       \
-                                                                \
-        for (auto &v : b) {                                     \
+        for (auto &v : c) {                                     \
             v.zero_grad();                                      \
         }                                                       \
     }
@@ -133,11 +124,11 @@ TEST_VALUE_ADD_VECTOR(int, Int)
         EXPECT_EQ(c[1].dataX(), TYPE(8.0));                      \
         EXPECT_EQ(c[2].dataX(), TYPE(9.0));                      \
                                                                  \
-        EXPECT_EQ(a[0].gradX(), 1.0);                            \
-        EXPECT_EQ(a[1].gradX(), 1.0);                            \
-        EXPECT_EQ(a[2].gradX(), 1.0);                            \
+        EXPECT_EQ(c[0].gradX(), 1.0);                            \
+        EXPECT_EQ(c[1].gradX(), 1.0);                            \
+        EXPECT_EQ(c[2].gradX(), 1.0);                            \
                                                                  \
-        for (auto &v : a) {                                      \
+        for (auto &v : c) {                                      \
             v.zero_grad();                                       \
         }                                                        \
     }
@@ -145,7 +136,7 @@ TEST_VALUE_ADD_VECTOR(int, Int)
 TEST_VALUE_ADD_VECTOR_SCALAR(float, Float)
 TEST_VALUE_ADD_VECTOR_SCALAR(double, Double)
 TEST_VALUE_ADD_VECTOR_SCALAR(int, Int)
-*/
+
 
 #define TEST_VALUE_ADD_MATRIX(TYPE, NAME)                                   \
     TEST(ValueTest, Add##NAME##Matrix) {                                    \

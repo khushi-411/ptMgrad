@@ -155,7 +155,6 @@ TEST_VALUE_LT_MATRIX_MATRIX_VALUE(double, Double)
 TEST_VALUE_LT_MATRIX_MATRIX_VALUE(int, Int)
 
 
-// FIXME
 #define TEST_VALUE_LT_MATRIX_SCALAR(TYPE, NAME)                    \
     TEST(ValueTest, Lt##NAME##MatrixScalar) {                      \
         std::vector<std::vector<Value<TYPE>>> a = {                \
@@ -170,6 +169,9 @@ TEST_VALUE_LT_MATRIX_MATRIX_VALUE(int, Int)
         EXPECT_EQ(c[0][0], true);                                  \
         EXPECT_EQ(c[0][1], true);                                  \
         EXPECT_EQ(c[0][2], true);                                  \
+        EXPECT_EQ(c[1][0], false);                                 \
+        EXPECT_EQ(c[1][1], true);                                  \
+        EXPECT_EQ(c[1][2], false);                                 \
     }
 
 TEST_VALUE_LT_MATRIX_SCALAR(float, Float)
@@ -224,7 +226,6 @@ TEST_VALUE_GT_SCALAR_SCALAR(double, Double)
 TEST_VALUE_GT_SCALAR_SCALAR(int, Int)
 
 
-// FIXME
 #define TEST_VALUE_GT_VECTOR_VECTOR(TYPE, NAME)                       \
     TEST(ValueTest, Gt##NAME##VectorVector) {                         \
         std::vector<Value<TYPE>> a = {                                \
@@ -238,6 +239,7 @@ TEST_VALUE_GT_SCALAR_SCALAR(int, Int)
         std::vector<bool> c = ptMgrad::gt(a, b);                      \
                                                                       \
         EXPECT_EQ(c[0], false);                                       \
+        EXPECT_EQ(c[1], true);                                        \
         EXPECT_EQ(c[2], false);                                       \
     }
 
@@ -246,7 +248,6 @@ TEST_VALUE_GT_VECTOR_VECTOR(double, Double)
 TEST_VALUE_GT_VECTOR_VECTOR(int, Int)
 
 
-// FIXME
 #define TEST_VALUE_GT_VECTOR_VALUE(TYPE, NAME)                        \
     TEST(ValueTest, Gt##NAME##VectorValue) {                          \
         std::vector<Value<TYPE>> a = {                                \
@@ -258,7 +259,7 @@ TEST_VALUE_GT_VECTOR_VECTOR(int, Int)
         std::vector<bool> c = ptMgrad::gt(a, b);                      \
                                                                       \
         EXPECT_EQ(c[0], false);                                       \
-        EXPECT_EQ(c[1], false);                                       \
+        EXPECT_EQ(c[1], true);                                        \
         EXPECT_EQ(c[2], false);                                       \
     }
 
@@ -266,8 +267,7 @@ TEST_VALUE_GT_VECTOR_VALUE(float, Float)
 TEST_VALUE_GT_VECTOR_VALUE(double, Double)
 TEST_VALUE_GT_VECTOR_VALUE(int, Int)
 
-// FIXME
-/*
+
 #define TEST_VALUE_GT_VECTOR_SCALAR(TYPE, NAME)                       \
     TEST(ValueTest, Gt##NAME##VectorScalar) {                         \
         std::vector<Value<TYPE>> a = {                                \
@@ -286,7 +286,6 @@ TEST_VALUE_GT_VECTOR_VALUE(int, Int)
 TEST_VALUE_GT_VECTOR_SCALAR(float, Float)
 TEST_VALUE_GT_VECTOR_SCALAR(double, Double)
 TEST_VALUE_GT_VECTOR_SCALAR(int, Int)
-*/
 
 
 #define TEST_VALUE_GT_VALUE_SCALAR_SCALAR(TYPE, NAME)                 \
@@ -307,7 +306,6 @@ TEST_VALUE_GT_VALUE_SCALAR_SCALAR(double, Double)
 TEST_VALUE_GT_VALUE_SCALAR_SCALAR(int, Int)
 
 
-// FIXME
 #define TEST_VALUE_GT_MATRIX_MATRIX(TYPE, NAME)                         \
     TEST(ValueTest, Gt##NAME##MatrixMatrix) {                           \
         std::vector<std::vector<Value<TYPE>>> a = {                     \
@@ -323,11 +321,11 @@ TEST_VALUE_GT_VALUE_SCALAR_SCALAR(int, Int)
         std::vector<std::vector<bool>> c = ptMgrad::gt(a, b);           \
                                                                         \
         EXPECT_EQ(c[0][0], false);                                      \
-        EXPECT_EQ(c[0][1], false);                                      \
+        EXPECT_EQ(c[0][1], true);                                       \
         EXPECT_EQ(c[0][2], false);                                      \
-        EXPECT_EQ(c[1][0], false);                                      \
+        EXPECT_EQ(c[1][0], true);                                       \
         EXPECT_EQ(c[1][1], false);                                      \
-        EXPECT_EQ(c[1][2], false);                                      \
+        EXPECT_EQ(c[1][2], true);                                       \
     }
 
 TEST_VALUE_GT_MATRIX_MATRIX(float, Float)
@@ -351,7 +349,7 @@ TEST_VALUE_GT_MATRIX_MATRIX(int, Int)
         EXPECT_EQ(c[0][2], false);                                      \
         EXPECT_EQ(c[1][0], false);                                      \
         EXPECT_EQ(c[1][1], false);                                      \
-        EXPECT_EQ(c[1][2], false);                                      \
+        EXPECT_EQ(c[1][2], true);                                       \
     }
 
 TEST_VALUE_GT_MATRIX_SCALAR(float, Float)

@@ -41,8 +41,11 @@ TEST_VALUE_RELU(int, Int)
         TYPE a = 2.0;                                 \
                                                       \
         Value<TYPE> b = ptMgrad::relu(a);             \
+        b.backward();                                 \
                                                       \
         EXPECT_EQ(b.dataX(), TYPE(2.0));              \
+        EXPECT_EQ(b.gradX(), TYPE(1.0));              \
+        b.zero_grad();                                \
     }
 
 TEST_VALUE_RELU_SCALAR(float, Float)
