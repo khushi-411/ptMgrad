@@ -66,29 +66,6 @@ TEST_VALUE_ADD_SCALAR(double, Double)
 TEST_VALUE_ADD_SCALAR(int, Int)
 
 
-/*
-// for scalar x float operations
-TEST(ValueTest, ScalarAddFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::add(a, b);
-
-    EXPECT_EQ(c.dataX(), 5.0f);
-}
-
-// for scalar x double operations
-TEST(ValueTest, ScalarAddDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::add(a, b);
-
-    EXPECT_EQ(c.dataX(), 5.0);
-}
-*/
-
-
 #define TEST_VALUE_ADD_SCALAR_SCALAR(TYPE, NAME)            \
     TEST(ValueTest, ScalarSCALARADD##NAME) {                \
         TYPE a = 2.0;                                       \
@@ -103,36 +80,30 @@ TEST_VALUE_ADD_SCALAR_SCALAR(float, Float)
 TEST_VALUE_ADD_SCALAR_SCALAR(double, Double)
 TEST_VALUE_ADD_SCALAR_SCALAR(int, Int)
 
-
-// TODO: add backward support; investigate
-#define TEST_VALUE_ADD_VECTOR(TYPE, NAME)                        \
-    TEST(ValueTest, Add##NAME##Vector) {                         \
-        std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};            \
-        std::vector<Value<TYPE>> b = {5.0, -6.0, 7.0};           \
-                                                                 \
-        std::vector<Value<TYPE>> c = ptMgrad::add(a, b);         \
-                                                                 \
-        EXPECT_EQ(c[0].dataX(), 7.0);                            \
-        EXPECT_EQ(c[1].dataX(), -3.0);                           \
-        EXPECT_EQ(c[2].dataX(), 11.0);                           \
-    }
-
 /*
+// TODO: add backward support; investigate
+#define TEST_VALUE_ADD_VECTOR(TYPE, NAME)                       \
+    TEST(ValueTest, Add##NAME##Vector) {                        \
+        std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};           \
+        std::vector<Value<TYPE>> b = {5.0, -6.0, 7.0};          \
+                                                                \
+        std::vector<Value<TYPE>> c = ptMgrad::add(a, b);        \
+                                                                \
+        EXPECT_EQ(c[0].dataX(), TYPE(7.0));                           \
+        EXPECT_EQ(c[1].dataX(), TYPE(-3.0));                          \
+        EXPECT_EQ(c[2].dataX(), TYPE(11.0));                          \
+                                                                \
         for (auto &v : c) {                                     \
             v.backward();                                       \
         }                                                       \
                                                                 \
-        EXPECT_EQ(c[0].dataX(), 7.0);                           \
-        EXPECT_EQ(c[1].dataX(), -3.0);                          \
-        EXPECT_EQ(c[2].dataX(), 11.0);                          \
+        EXPECT_EQ(a[0].gradX(), TYPE(1.0));                           \
+        EXPECT_EQ(a[1].gradX(), TYPE(1.0));                           \
+        EXPECT_EQ(a[2].gradX(), TYPE(1.0));                           \
                                                                 \
-        EXPECT_EQ(a[0].gradX(), 1.0);                           \
-        EXPECT_EQ(a[1].gradX(), 1.0);                           \
-        EXPECT_EQ(a[2].gradX(), 1.0);                           \
-                                                                \
-        EXPECT_EQ(b[0].gradX(), 1.0);                           \
-        EXPECT_EQ(b[1].gradX(), -1.0);                          \
-        EXPECT_EQ(b[2].gradX(), 1.0);                           \
+        EXPECT_EQ(b[0].gradX(), TYPE(1.0));                           \
+        EXPECT_EQ(b[1].gradX(), TYPE(-1.0));                          \
+        EXPECT_EQ(b[2].gradX(), TYPE(1.0));                           \
                                                                 \
         for (auto &v : a) {                                     \
             v.zero_grad();                                      \
@@ -142,7 +113,6 @@ TEST_VALUE_ADD_SCALAR_SCALAR(int, Int)
             v.zero_grad();                                      \
         }                                                       \
     }
-*/
 
 TEST_VALUE_ADD_VECTOR(float, Float)
 TEST_VALUE_ADD_VECTOR(double, Double)
@@ -155,16 +125,27 @@ TEST_VALUE_ADD_VECTOR(int, Int)
         TYPE b = 5.0;                                            \
                                                                  \
         std::vector<Value<TYPE>> c = ptMgrad::add(a, b);         \
+        for (auto &v : c) {                                      \
+            v.backward();                                        \
+        }                                                        \
                                                                  \
-        EXPECT_EQ(c[0].dataX(), 7.0);                            \
-        EXPECT_EQ(c[1].dataX(), 8.0);                            \
-        EXPECT_EQ(c[2].dataX(), 9.0);                            \
+        EXPECT_EQ(c[0].dataX(), TYPE(7.0));                      \
+        EXPECT_EQ(c[1].dataX(), TYPE(8.0));                      \
+        EXPECT_EQ(c[2].dataX(), TYPE(9.0));                      \
+                                                                 \
+        EXPECT_EQ(a[0].gradX(), 1.0);                            \
+        EXPECT_EQ(a[1].gradX(), 1.0);                            \
+        EXPECT_EQ(a[2].gradX(), 1.0);                            \
+                                                                 \
+        for (auto &v : a) {                                      \
+            v.zero_grad();                                       \
+        }                                                        \
     }
 
 TEST_VALUE_ADD_VECTOR_SCALAR(float, Float)
 TEST_VALUE_ADD_VECTOR_SCALAR(double, Double)
 TEST_VALUE_ADD_VECTOR_SCALAR(int, Int)
-
+*/
 
 #define TEST_VALUE_ADD_MATRIX(TYPE, NAME)                                   \
     TEST(ValueTest, Add##NAME##Matrix) {                                    \
@@ -253,29 +234,6 @@ TEST_VALUE_SUB(int, Int)
 TEST_VALUE_SUB_SCALAR(float, Float)
 TEST_VALUE_SUB_SCALAR(double, Double)
 TEST_VALUE_SUB_SCALAR(int, Int)
-
-
-/*
-// for scalar x float = float operations
-TEST(ValueTest, ScalarSubFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::sub(a, b);
-
-    EXPECT_EQ(c.dataX(), -1.0f);
-}
-
-// for scalar x double = double operations
-TEST(ValueTest, ScalarSubDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::sub(a, b);
-
-    EXPECT_EQ(c.dataX(), -1.0);
-}
-*/
 
 
 #define TEST_VALUE_SUB_SCALAR_SCALAR(TYPE, NAME)            \
@@ -403,27 +361,6 @@ TEST(ValueTest, DoubleRsubScalar) {
     EXPECT_EQ(c.dataX(), 1.0);
 }
 
-/*
-// for scalar x float = float operations
-TEST(ValueTest, ScalarRsubFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::rsub(a, b);
-
-    EXPECT_EQ(c.dataX(), 1.0f);
-}
-
-// for scalar x double = double operations
-TEST(ValueTest, ScalarRsubDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::rsub(a, b);
-
-    EXPECT_EQ(c.dataX(), 1.0);
-}
-*/
 
 // for scalar x scalar = float operations
 TEST(ValueTest, ScalarRsubScalar) {
@@ -519,27 +456,6 @@ TEST(ValueTest, DoubleMulScalar) {
     EXPECT_EQ(c.dataX(), 6.0);
 }
 
-/*
-// for scalar x float = float operations
-TEST(ValueTest, ScalarMulFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::mul(a, b);
-
-    EXPECT_EQ(c.dataX(), 6.0f);
-}
-
-// for scalar x double = double operations
-TEST(ValueTest, ScalarMulDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::mul(a, b);
-
-    EXPECT_EQ(c.dataX(), 6.0);
-}
-*/
 
 // for scalar x scalar = float operations
 TEST(ValueTest, ScalarMulScalar) {
@@ -685,27 +601,6 @@ TEST(ValueTest, DoubleDivScalar) {
     EXPECT_NEAR(c.dataX(), 2.0 / 3.0, 0.001);
 }
 
-/*
-// for scalar x float = float operations
-TEST(ValueTest, ScalarDivFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::div(a, b);
-
-    EXPECT_NEAR(c.dataX(), 2.0f / 3.0f, 0.001);
-}
-
-// for scalar x double = double operations
-TEST(ValueTest, ScalarDivDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::div(a, b);
-
-    EXPECT_NEAR(c.dataX(), 2.0 / 3.0, 0.001);
-}
-*/
 
 // for scalar x scalar = float operations
 TEST(ValueTest, ScalarDivScalar) {
@@ -775,25 +670,19 @@ TEST(ValueTest, MatrixDiv) {
 
 // rdiv
 
-// for float x float operations
-TEST(ValueTest, FloatRdiv) {
-    Value<float> a = 2.0f;
-    Value<float> b = 3.0f;
+#define TEST_VALUE_RDIV(TYPE, NAME)                        \
+    TEST(ValueTest, Rdiv##NAME) {                          \
+        Value<TYPE> a = 2.0;                               \
+        Value<TYPE> b = 3.0;                               \
+                                                           \
+        Value<TYPE> c = ptMgrad::rdiv(a, b);               \
+        c.backward();                                      \
+                                                           \
+        EXPECT_EQ(c.dataX(), TYPE(1.5));                   \
+    }
 
-    Value<float> c = ptMgrad::rdiv(a, b);
-
-    EXPECT_EQ(c.dataX(), 1.5f);
-}
-
-// for double x double operations
-TEST(ValueTest, DoubleRdiv) {
-    Value<double> a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::rdiv(a, b);
-
-    EXPECT_EQ(c.dataX(), 1.5);
-}
+TEST_VALUE_RDIV(float, Float)
+TEST_VALUE_RDIV(double, Double)
 
 
 // for float x scalar operations
@@ -816,27 +705,6 @@ TEST(ValueTest, DoubleRdivScalar) {
     EXPECT_EQ(c.dataX(), 1.5);
 }
 
-/*
-// for scalar x float = float operations
-TEST(ValueTest, ScalarRdivFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::rdiv(a, b);
-
-    EXPECT_EQ(c.dataX(), 1.5f);
-}
-
-// for scalar x double = double operations
-TEST(ValueTest, ScalarRdivDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::rdiv(a, b);
-
-    EXPECT_EQ(c.dataX(), 1.5);
-}
-*/
 
 // for scalar x scalar = float operations
 TEST(ValueTest, ScalarRdivScalar) {
@@ -924,84 +792,56 @@ TEST(ValueTest, MatrixRdivScalar) {
 
 // Pow
 
-// for float x float operations
-TEST(ValueTest, FloatPow) {
-    Value<float> a = 2.0f;
-    Value<float> b = 3.0f;
+#define TEST_VALUE_POW(TYPE, NAME)                        \
+    TEST(ValueTest, Pow##NAME) {                          \
+        Value<TYPE> a = 2.0;                              \
+        Value<TYPE> b = 3.0;                              \
+                                                          \
+        Value<TYPE> c = ptMgrad::pow(a, b);               \
+        c.backward();                                     \
+                                                          \
+        EXPECT_EQ(c.dataX(), TYPE(8.0));                  \
+        EXPECT_EQ(a.gradX(), TYPE(12.0));                 \
+        EXPECT_EQ(b.gradX(), TYPE(5.545177444479562));    \
+                                                          \
+        a.zero_grad();                                    \
+        b.zero_grad();                                    \
+    }
 
-    Value<float> c = ptMgrad::pow(a, b);
+TEST_VALUE_POW(float, Float)
+TEST_VALUE_POW(double, Double)
+TEST_VALUE_POW(int, Int)
 
-    EXPECT_EQ(c.dataX(), 8.0f);
-}
 
-// for double x double operations
-TEST(ValueTest, DoublePow) {
-    Value<double> a = 2.0;
-    Value<double> b = 3.0;
+#define TEST_VALUE_POW_SCALAR(TYPE, NAME)                  \
+    TEST(ValueTest, Pow##NAME##Scalar) {                   \
+        Value<TYPE> a = 2.0;                               \
+        TYPE b = 3.0;                                      \
+                                                           \
+        Value<TYPE> c = ptMgrad::pow(a, b);                \
+        c.backward();                                      \
+                                                           \
+        EXPECT_EQ(c.dataX(), TYPE(8.0));                   \
+        EXPECT_EQ(a.gradX(), TYPE(12.0));                  \
+                                                           \
+        a.zero_grad();                                     \
+    }
 
-    Value<double> c = ptMgrad::pow(a, b);
+TEST_VALUE_POW_SCALAR(float, Float)
+TEST_VALUE_POW_SCALAR(double, Double)
+TEST_VALUE_POW_SCALAR(int, Int)
 
-    EXPECT_EQ(c.dataX(), 8.0);
-}
 
-// for float x scalar operations
-TEST(ValueTest, FloatPowScalar) {
-    Value<float> a = 2.0f;
-    float b = 3.0f;
+#define TEST_VALUE_POW_SCALAR_SCALAR(TYPE, NAME)            \
+    TEST(ValueTest, Pow##NAME##ScalarScalar) {              \
+        TYPE a = 2.0;                                       \
+        TYPE b = 3.0;                                       \
+                                                            \
+        Value<TYPE> c = ptMgrad::pow(a, b);                 \
+                                                            \
+        EXPECT_EQ(c.dataX(), TYPE(8.0));                    \
+    }
 
-    Value<float> c = ptMgrad::pow(a, b);
-
-    EXPECT_EQ(c.dataX(), 8.0f);
-}
-
-// for double x scalar operations
-TEST(ValueTest, DoublePowScalar) {
-    Value<double> a = 2.0;
-    double b = 3.0;
-
-    Value<double> c = ptMgrad::pow(a, b);
-
-    EXPECT_EQ(c.dataX(), 8.0);
-}
-
-/*
-// for scalar x float operations
-TEST(ValueTest, ScalarPowFloat) {
-    float a = 2.0f;
-    Value<float> b = 3.0f;
-
-    Value<float> c = ptMgrad::pow(a, b);
-
-    EXPECT_EQ(c.dataX(), 8.0f);
-}
-
-// for scalar x double operations
-TEST(ValueTest, ScalarPowDouble) {
-    double a = 2.0;
-    Value<double> b = 3.0;
-
-    Value<double> c = ptMgrad::pow(a, b);
-
-    EXPECT_EQ(c.dataX(), 8.0);
-}
-*/
-
-// for scalar x scalar = float operations
-TEST(ValueTest, ScalarPowScalarFloat) {
-    float a = 2.0f;
-    float b = 3.0f;
-
-    Value<float> c = ptMgrad::pow(a, b);
-
-    EXPECT_EQ(c.dataX(), 8.0f);
-}
-
-// for scalar x scalar = double operations
-TEST(ValueTest, ScalarPowScalarDouble) {
-    double a = 2.0;
-    double b = 3.0;
-
-    Value<double> c = ptMgrad::pow(a, b);
-
-    EXPECT_EQ(c.dataX(), 8.0);
-}
+TEST_VALUE_POW_SCALAR_SCALAR(float, Float)
+TEST_VALUE_POW_SCALAR_SCALAR(double, Double)
+TEST_VALUE_POW_SCALAR_SCALAR(int, Int)
