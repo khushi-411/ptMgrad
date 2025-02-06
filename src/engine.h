@@ -2221,11 +2221,15 @@ pow(const T& _x, const T& _y) {
     return Value<T>(__k);
 }
 
-/*
+
 template <class T>
 inline
 std::vector<Value<T>>
 pow(const std::vector<Value<T>>& _x, const std::vector<Value<T>>& _y) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<Value<T>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -2253,6 +2257,10 @@ pow(
     const std::vector<std::vector<Value<T>>>& _x,
     const std::vector<std::vector<Value<T>>>& _y
 ) {
+    if (_x.size() != _y.size()) {
+        throw std::invalid_argument("Vectors must have the same size");
+    }
+
     std::vector<std::vector<Value<T>>> __k;
     __k.reserve(_x.size());
     for (size_t i = 0; i < _x.size(); ++i) {
@@ -2275,7 +2283,7 @@ pow(
     }
     return __k;
 }
-*/
+
 
 
 // neg

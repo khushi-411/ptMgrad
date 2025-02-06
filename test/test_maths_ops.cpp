@@ -836,3 +836,64 @@ TEST_VALUE_POW_SCALAR(int, Int)
 TEST_VALUE_POW_SCALAR_SCALAR(float, Float)
 TEST_VALUE_POW_SCALAR_SCALAR(double, Double)
 TEST_VALUE_POW_SCALAR_SCALAR(int, Int)
+
+
+#define TEST_VALUE_POW_VECTOR(TYPE, NAME)                        \
+    TEST(ValueTest, Pow##NAME##Vector) {                         \
+        std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};            \
+        std::vector<Value<TYPE>> b = {5.0, -6.0, 7.0};           \
+                                                                 \
+        std::vector<Value<TYPE>> c = ptMgrad::pow(a, b);         \
+                                                                 \
+        EXPECT_EQ(c[0].dataX(), TYPE(32.0));                     \
+        EXPECT_NEAR(c[1].dataX(), TYPE(0.002183401), 0.001);     \
+        EXPECT_EQ(c[2].dataX(), TYPE(16384.0));                  \
+    }
+
+TEST_VALUE_POW_VECTOR(float, Float)
+TEST_VALUE_POW_VECTOR(double, Double)
+TEST_VALUE_POW_VECTOR(int, Int)
+
+
+#define TEST_VALUE_POW_VECTOR_SCALAR(TYPE, NAME)                \
+    TEST(ValueTest, Pow##NAME##VectorScalar) {                  \
+        std::vector<Value<TYPE>> a = {2.0, 3.0, 4.0};           \
+        TYPE b = 5.0;                                           \
+                                                                \
+        std::vector<Value<TYPE>> c = ptMgrad::pow(a, b);        \
+                                                                \
+        EXPECT_EQ(c[0].dataX(), TYPE(32.0));                    \
+        EXPECT_EQ(c[1].dataX(), TYPE(243.0));                   \
+        EXPECT_EQ(c[2].dataX(), TYPE(1024.0));                  \
+    }
+
+TEST_VALUE_POW_VECTOR_SCALAR(float, Float)
+TEST_VALUE_POW_VECTOR_SCALAR(double, Double)
+TEST_VALUE_POW_VECTOR_SCALAR(int, Int)
+
+
+#define TEST_VALUE_POW_MATRIX(TYPE, NAME)                                 \
+    TEST(ValueTest, Pow##NAME##Matrix) {                                  \
+        std::vector<std::vector<Value<TYPE>>> a = {                       \
+            {2.0, 3.0, 4.0},                                              \
+            {5.0, -6.0, 7.0}                                              \
+        };                                                                \
+                                                                          \
+        std::vector<std::vector<Value<TYPE>>> b = {                       \
+            {5.0, -6.0, 7.0},                                             \
+            {2.0, 3.0, 4.0}                                               \
+        };                                                                \
+                                                                          \
+        std::vector<std::vector<Value<TYPE>>> c = ptMgrad::pow(a, b);     \
+                                                                          \
+        EXPECT_EQ(c[0][0].dataX(), TYPE(32.0));                           \
+        EXPECT_NEAR(c[0][1].dataX(), TYPE(0.002183401), 0.001);           \
+        EXPECT_EQ(c[0][2].dataX(), TYPE(16384.0));                        \
+        EXPECT_EQ(c[1][0].dataX(), TYPE(25.0));                           \
+        EXPECT_EQ(c[1][1].dataX(), TYPE(-216.0));                         \
+        EXPECT_EQ(c[1][2].dataX(), TYPE(2401.0));                         \
+    }
+
+TEST_VALUE_POW_MATRIX(float, Float)
+TEST_VALUE_POW_MATRIX(double, Double)
+TEST_VALUE_POW_MATRIX(int, Int)
