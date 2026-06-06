@@ -32,7 +32,15 @@ private:
 public:
     Neuron(int nin, bool nonlin = true) : w(nin), b(0), nonlin(nonlin) {
         for (auto& wi : w) {
-            wi = Value<T>(static_cast<T>(std::rand()) / static_cast<T>(RAND_MAX) * T(2.0) - T(1.0));
+             if constexpr (is_complex_v<T>) {
+                // random complex weight: real and imaginary parts in [-1, 1]
+                using R = decltype(T().real());
+                R re = static_cast<R>(std::rand()) / static_cast<R>(RAND_MAX) * R(2.0) - R(1.0);
+                R im = static_cast<R>(std::rand()) / static_cast<R>(RAND_MAX) * R(2.0) - R(1.0);
+                wi = Value<T>(T(re, im));
+            } else {
+                wi = Value<T>(static_cast<T>(std::rand()) / static_cast<T>(RAND_MAX) * T(2.0) - T(1.0));
+            }
         }
     }
 

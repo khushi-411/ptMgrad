@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <stdexcept>
 #include <memory>
+#include <unordered_set>
 
 #include "complex.h"
 
@@ -198,18 +199,32 @@ public:
     void backward() {
         // topological order all of the children in the graph
         std::vector<Value<T>*> topo;
-        std::set<Value<T>*> visited;
+        std::unordered_set<Value<T>*> visited;
 
-        std::function<void(Value<T>*)> build_topo = [&](Value<T>* v) {
-            if (visited.find(v) == visited.end()) {
-                visited.insert(v);
-                for (auto* child : v->children) {
-                    build_topo(child);
-                }
+        std::vector<std::pair<Value<T>*, bool>> stack;
+        stack.push_back({this, false});
+
+        while (!stack.empty()) {
+            auto [v, processed] = stack.back();
+            stack.pop_back();
+
+            if (processed) {
                 topo.push_back(v);
+                continue;
             }
-        };
-        build_topo(this);
+
+            if (visited.count(v)) continue;
+            visited.insert(v);
+
+            // Re-push self so it is added to topo after all children
+            stack.push_back({v, true});
+
+            for (auto* child : v->children) {
+                if (!visited.count(child)) {
+                    stack.push_back({child, false});
+                }
+            }
+        }
 
         // go one variable at a time and apply the chain rule to get its gradient
         *this->grad = T(1.0);
@@ -2554,24 +2569,46 @@ template <class T>
 inline
 Value <T>
 relu(const Value<T>& _x) {
-    Value<T> __k;
-    if (_x.dataX() < 0.0) {
-        __k = Value<T>(0.0);
+    if constexpr (is_complex_v<T>) {
+        // complex part: copied from AI
+        using R = decltype(_x.dataX().real());
+        R re = _x.dataX().real();
+        R im = _x.dataX().imag();
+
+        Value<T> __k(T(re < R(0) ? R(0) : re, im < R(0) ? R(0) : im));
+
+        __k.add_child(&_x);
+
+        __k.set_backward([_x, __k]() {
+            using R = decltype(_x.dataX().real());
+            R re = _x.dataX().real();
+            R im = _x.dataX().imag();
+            auto g = __k.get_grad();
+            _x.add_grad(re < R(0) ? R(0) : g.real(),
+                        im < R(0) ? R(0) : g.imag());
+        });
+
+        return __k;
     } else {
-        __k = Value<T>(_x.dataX());
-    }
-
-    __k.add_child(&_x);
-
-    __k.set_backward([_x, __k]() {
+        Value<T> __k;
         if (_x.dataX() < 0.0) {
-            _x.add_grad(0.0);
+            __k = Value<T>(0.0);
         } else {
-            _x.add_grad(__k.get_grad());
+            __k = Value<T>(_x.dataX());
         }
-    });
 
-    return __k;
+        __k.add_child(&_x);
+
+        __k.set_backward([_x, __k]() {
+            if (_x.dataX() < 0.0) {
+                _x.add_grad(0.0);
+            } else {
+                _x.add_grad(__k.get_grad());
+            }
+        });
+
+        return __k;
+    }
 }
 
 template <class T>

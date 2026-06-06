@@ -1,7 +1,10 @@
 ### ptMgrad = pt (PyTorch) + Mgrad (micrograd)
 
-This project is inspired by the [PyTorch](https://github.com/pytorch/pytorch)
+This is a fun project inspired by the [PyTorch](https://github.com/pytorch/pytorch)
 and Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd).
+
+***Note:*** Took help from AI assistance for C++ memory management and
+the iterative `backward()` topological sort.
 
 #### Install from source
 
