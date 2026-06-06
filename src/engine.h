@@ -2570,7 +2570,6 @@ inline
 Value <T>
 relu(const Value<T>& _x) {
     if constexpr (is_complex_v<T>) {
-        // complex part: copied from AI
         using R = decltype(_x.dataX().real());
         R re = _x.dataX().real();
         R im = _x.dataX().imag();
