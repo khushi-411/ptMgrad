@@ -4,6 +4,8 @@ build
 # ignore generated files
 *.o
 *.obj
+demo
 main
+model
 .idea/
 .vscode/

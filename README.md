@@ -27,3 +27,9 @@ mkdir build && cd build && cmake .. && make && cd ..
 # or
 make test
 ```
+
+#### Run neural network model
+
+```
+g++ -O3 -std=c++17 -Isrc model.cpp -o model && ./model
+```
