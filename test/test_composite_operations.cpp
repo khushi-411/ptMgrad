@@ -10,7 +10,7 @@
 
 using namespace ptMgrad;
 
-/*
+
 #define TEST_COMPOSITE_OPS(TYPE, NAME)                       \
     TEST(ValueTest, Composite##NAME##Operations) {           \
         Value<TYPE> a = 2.0;                                 \
@@ -51,8 +51,8 @@ TEST_COMPOSITE_OPS(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(e.dataX(), TYPE(6.5));                       \
     }
 
-TEST_COMPOSITE_OPS2(float, Float)
-TEST_COMPOSITE_OPS2(double, Double)
+//TEST_COMPOSITE_OPS2(float, Float)
+//TEST_COMPOSITE_OPS2(double, Double)
 TEST_COMPOSITE_OPS2(int, Int)
 TEST_COMPOSITE_OPS2(ptMgrad::complex<float>, ComplexFloat)
 TEST_COMPOSITE_OPS2(ptMgrad::complex<double>, ComplexDouble)
@@ -70,12 +70,12 @@ TEST_COMPOSITE_OPS2(ptMgrad::complex<double>, ComplexDouble)
         EXPECT_EQ(e.dataX(), TYPE(20.0));                      \
     }
 
-TEST_COMPOSITE_OPS3(float, Float)
-TEST_COMPOSITE_OPS3(double, Double)
-TEST_COMPOSITE_OPS3(int, Int)
+//TEST_COMPOSITE_OPS3(float, Float)
+//TEST_COMPOSITE_OPS3(double, Double)
+//TEST_COMPOSITE_OPS3(int, Int)
 TEST_COMPOSITE_OPS3(ptMgrad::complex<float>, ComplexFloat)
 TEST_COMPOSITE_OPS3(ptMgrad::complex<double>, ComplexDouble)
-*/
+
 
 #define TEST_COMPOSITE_OPS4(TYPE, NAME)                        \
 	TEST(ValueTest, Composite##NAME##Operations4) {            \

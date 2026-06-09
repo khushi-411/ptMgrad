@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 
-#include "engine.h"
 
 namespace ptMgrad {
 

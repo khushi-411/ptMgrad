@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <random>
+#include <cstdlib>
 
 #include "engine.h"
 
@@ -31,14 +32,22 @@ private:
 public:
     Neuron(int nin, bool nonlin = true) : w(nin), b(0), nonlin(nonlin) {
         for (auto& wi : w) {
-            wi = Value<T>(rand() / RAND_MAX * 2.0 - 1.0);
+             if constexpr (is_complex_v<T>) {
+                // random complex weight: real and imaginary parts in [-1, 1]
+                using R = decltype(T().real());
+                R re = static_cast<R>(std::rand()) / static_cast<R>(RAND_MAX) * R(2.0) - R(1.0);
+                R im = static_cast<R>(std::rand()) / static_cast<R>(RAND_MAX) * R(2.0) - R(1.0);
+                wi = Value<T>(T(re, im));
+            } else {
+                wi = Value<T>(static_cast<T>(std::rand()) / static_cast<T>(RAND_MAX) * T(2.0) - T(1.0));
+            }
         }
     }
 
     Value<T> operator()(const std::vector<Value<T>>& x) {
         Value<T> act = b;
         for (size_t i = 0; i < w.size(); ++i) {
-            act += w[i] * x[i];
+            act = act + w[i] * x[i];
         }
         return nonlin ? ptMgrad::relu(act) : act;
     }
@@ -68,7 +77,7 @@ private:
     std::vector<Value<T>*> params;
 
 public:
-    Layer(int nin, int nout, bool nonlin = true) : nin(nin), nout(nout), nonlin(nonlin) {
+    Layer(int nin, int nout, bool nonlin = true) : nonlin(nonlin), nin(nin), nout(nout) {
         for (int i = 0; i < nout; ++i) {
             neurons.push_back(Neuron<T>(nin, nonlin));
         }

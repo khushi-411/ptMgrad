@@ -13,6 +13,9 @@
 #include <functional>
 #include <cmath>
 #include <type_traits>
+#include <stdexcept>
+#include <memory>
+#include <unordered_set>
 
 #include "complex.h"
 
@@ -38,13 +41,34 @@ public:
 private:
     T x;
     T y;
-    mutable T grad = T(0);
+    mutable std::shared_ptr<T> grad = std::make_shared<T>(T(0));
+    std::vector<std::shared_ptr<Value<T>>> owned_children;
     std::vector<Value<T>*> children;
     std::function<void()> backward_fn = []() {};
 
 public:
     // default constructor
-    Value() : x(T(0.0)), y(T(0.0)), grad(T(0.0)) {}
+    Value() : x(T(0.0)), y(T(0.0)) {}
+
+    Value(const Value& other)
+        : x(other.x),
+          y(other.y),
+          grad(other.grad),
+          owned_children(other.owned_children),
+          children(other.children),
+          backward_fn(other.backward_fn) {}
+
+    Value& operator=(const Value& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+            grad = other.grad;
+            owned_children = other.owned_children;
+            children = other.children;
+            backward_fn = other.backward_fn;
+        }
+        return *this;
+    }
 
     template <class _X> constexpr
     Value(const Value<_X>& _x) : x(_x.dataX()), y(_x.dataY()) {}
@@ -82,32 +106,33 @@ public:
         }
     }
 
-    // void add_child(const Value<T>* child) {
-    //     children.push_back(const_cast<Value<T>*>(child));
-    // }
+    void add_child(const Value<T>* child) {
+        owned_children.push_back(std::make_shared<Value<T>>(*child));
+        children.push_back(owned_children.back().get());
+    }
 
     template <typename _X>
     void add_child(const Value<_X>* child) {
-        Value<T>* child_cast = new Value<T>(child->dataX(), child->dataY());
-        children.push_back(child_cast);
+        owned_children.push_back(std::make_shared<Value<T>>(child->dataX(), child->dataY()));
+        children.push_back(owned_children.back().get());
     }
 
     void add_grad(const T& _grad) const {
-        grad += _grad;
+        *grad += _grad;
     }
 
 	template <typename _X, typename U=T>
     typename std::enable_if<is_complex_v<U>, void>::type
     add_grad(_X real, _X imag) const {
-        grad += T(real, imag);
+        *grad += T(real, imag);
     }
 
 	void zero_grad() {
-        grad = T(0.0);
+        *grad = T(0.0);
     }
 
     void set_grad(const T& _grad) {
-        grad = _grad;
+        *grad = _grad;
     }
 
     template <class _X> constexpr
@@ -115,7 +140,8 @@ public:
         // error: ‘double ptMgrad::Value<double>::x’ is private within this context
         this->x = x.dataX();
         this->y = x.dataY();
-        this->grad = T(0);
+        this->grad = std::make_shared<T>(T(0));
+        this->owned_children.clear();
         this->children.clear();
         this->backward_fn = []() {};
         return *this;
@@ -125,7 +151,8 @@ public:
     Value& operator=(const _X& x) {
         this->x = x;
         this->y = T(0);
-        this->grad = T(0);
+        this->grad = std::make_shared<T>(T(0));
+        this->owned_children.clear();
         this->children.clear();
         this->backward_fn = []() {};
         return *this;
@@ -144,15 +171,15 @@ public:
     }
 
     T gradX() const {
-        return grad;
+        return *grad;
     }
 
     T gradY() const {
-        return grad;
+        return *grad;
     }
 
     T get_grad() const {
-        return grad;
+        return *grad;
     }
 
     // void add_grad(const T& _grad) const {
@@ -172,21 +199,35 @@ public:
     void backward() {
         // topological order all of the children in the graph
         std::vector<Value<T>*> topo;
-        std::set<Value<T>*> visited;
+        std::unordered_set<Value<T>*> visited;
 
-        std::function<void(Value<T>*)> build_topo = [&](Value<T>* v) {
-            if (visited.find(v) == visited.end()) {
-                visited.insert(v);
-                for (auto* child : v->children) {
-                    build_topo(child);
-                }
+        std::vector<std::pair<Value<T>*, bool>> stack;
+        stack.push_back({this, false});
+
+        while (!stack.empty()) {
+            auto [v, processed] = stack.back();
+            stack.pop_back();
+
+            if (processed) {
                 topo.push_back(v);
+                continue;
             }
-        };
-        build_topo(this);
+
+            if (visited.count(v)) continue;
+            visited.insert(v);
+
+            // Re-push self so it is added to topo after all children
+            stack.push_back({v, true});
+
+            for (auto* child : v->children) {
+                if (!visited.count(child)) {
+                    stack.push_back({child, false});
+                }
+            }
+        }
 
         // go one variable at a time and apply the chain rule to get its gradient
-        this->grad = T(1.0);
+        *this->grad = T(1.0);
 
         for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
             (*it)->backward_fn();
@@ -325,7 +366,7 @@ operator+ (const Value<T>& x, const Value<T>& y) {
 		__k.add_child(&x);
 		__k.add_child(&y);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 			y.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 		});
@@ -338,7 +379,7 @@ operator+ (const Value<T>& x, const Value<T>& y) {
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         // x.grad = add_grad(x.get_grad(), __k.get_grad());
         // y.grad = add_grad(y.get_grad(), __k.get_grad());
         x.add_grad(__k.get_grad());
@@ -365,7 +406,7 @@ operator+ (const Value<T>& x, const Value<U>& y) {
         __k.add_child(&x);
         __k.add_child(&y);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 			y.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 		});
@@ -373,8 +414,7 @@ operator+ (const Value<T>& x, const Value<U>& y) {
         return __k;
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k += y;
+    Value<ResultType<T, U>> __k(x.dataX() + y.dataX(), x.dataY() + y.dataY());
 
     // __k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
     // __k.add_child(static_cast<Value<ResultType<T, U>>*>(&y));
@@ -382,7 +422,7 @@ operator+ (const Value<T>& x, const Value<U>& y) {
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
         y.add_grad(__k.get_grad());
     });
@@ -405,19 +445,18 @@ operator+ (const Value<T>& x, const T& y) {
         __k.add_child(&x);
 		// __k.add_child(&y);    // y is scalar
 
-        __k.set_backward([&x, &y, &__k]() {
+        __k.set_backward([x, y, __k]() {
             x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
         });
 
         return __k;
     }
 
-	Value<T> __k = x;
-    __k += y;
+		Value<T> __k(x.dataX() + y, x.dataY());
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
     });
 
@@ -438,19 +477,18 @@ operator+ (const Value<T>& x, const U& y) {
 
 		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 		});
 
         return __k;
     }
     
-	Value<ResultType<T, U>> __k = x;
-    __k += y;
+		Value<ResultType<T, U>> __k(x.dataX() + y, x.dataY());
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
     });
 
@@ -508,7 +546,7 @@ operator- (const Value<T>& x, const Value<T>& y) {
         __k.add_child(&x);
         __k.add_child(&y);
 
-        __k.set_backward([&x, &y, &__k]() {
+        __k.set_backward([x, y, __k]() {
             x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
             y.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
         });
@@ -516,13 +554,12 @@ operator- (const Value<T>& x, const Value<T>& y) {
         return __k;
     }
 
-    Value<T> __k = x;
-    __k -= y;
+    Value<T> __k(x.dataX() - y.dataX(), x.dataY() - y.dataY());
 
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
         y.add_grad(-__k.get_grad());
     });
@@ -545,7 +582,7 @@ operator- (const Value<T>& x, const Value<U>& y) {
 		__k.add_child(&x);
 		__k.add_child(&y);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 			y.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
 		});
@@ -553,13 +590,12 @@ operator- (const Value<T>& x, const Value<U>& y) {
         return __k;
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k -= y;
+    Value<ResultType<T, U>> __k(x.dataX() - y.dataX(), x.dataY() - y.dataY());
 
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
         y.add_grad(-__k.get_grad());
     });
@@ -581,19 +617,18 @@ operator- (const Value<T>& x, const T& y) {
 
 		__k.add_child(&x);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 		});
 
         return __k;
     }
 
-    Value<T> __k = x;
-    __k -= y;
+    Value<T> __k(x.dataX() - y, x.dataY());
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
     });
 
@@ -613,19 +648,18 @@ operator- (const Value<T>& x, const U& y) {
 
 		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(__k.get_grad().real(), __k.get_grad().imag());
 		});
 
         return __k;
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k -= y;
+    Value<ResultType<T, U>> __k(x.dataX() - y, x.dataY());
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad());
     });
 
@@ -682,7 +716,7 @@ operator* (const Value<T>& x, const Value<T>& y) {
 		__k.add_child(&x);
 		__k.add_child(&y);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(
 				__k.get_grad().real() * y.dataX().real() - __k.get_grad().imag() * y.dataX().imag(),
 				__k.get_grad().real() * y.dataX().imag() + __k.get_grad().imag() * y.dataX().real()
@@ -696,13 +730,12 @@ operator* (const Value<T>& x, const Value<T>& y) {
 		return __k;
     }
 
-    Value<T> __k = x;
-    __k *= y;
+    Value<T> __k(x.dataX() * y.dataX(), x.dataY() * y.dataY());
 
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() * y.dataX());
         y.add_grad(__k.get_grad() * x.dataX());
     });
@@ -725,7 +758,7 @@ operator* (const Value<T>& x, const Value<U>& y) {
 		__k.add_child(&x);
 		__k.add_child(&y);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(
 				__k.get_grad().real() * y.dataX().real() - __k.get_grad().imag() * y.dataX().imag(),
 				__k.get_grad().real() * y.dataX().imag() + __k.get_grad().imag() * y.dataX().real()
@@ -739,13 +772,12 @@ operator* (const Value<T>& x, const Value<U>& y) {
 		return __k;
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k *= y;
+    Value<ResultType<T, U>> __k(x.dataX() * y.dataX(), x.dataY() * y.dataY());
 
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() * y.dataX());
         y.add_grad(__k.get_grad() * x.dataX());
     });
@@ -767,7 +799,7 @@ operator* (const Value<T>& x, const T& y) {
 
 		__k.add_child(&x);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(
 				__k.get_grad().real() * y.real() - __k.get_grad().imag() * y.imag(),
 				__k.get_grad().real() * y.imag() + __k.get_grad().imag() * y.real()
@@ -777,12 +809,11 @@ operator* (const Value<T>& x, const T& y) {
         return __k;
     }
 
-    Value<T> __k = x;
-    __k *= y;
+    Value<T> __k(x.dataX() * y, x.dataY() * y);
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() * y);
     });
 
@@ -803,7 +834,7 @@ operator* (const Value<T>& x, const U& y) {
 
 		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
 			x.add_grad(
 				__k.get_grad().real() * y.real() - __k.get_grad().imag() * y.imag(),
 				__k.get_grad().real() * y.imag() + __k.get_grad().imag() * y.real()
@@ -813,12 +844,11 @@ operator* (const Value<T>& x, const U& y) {
 		return __k;
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k *= y;
+    Value<ResultType<T, U>> __k(x.dataX() * y, x.dataY() * y);
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() * y);
     });
 
@@ -881,7 +911,7 @@ operator/ (const Value<T>& x, const Value<T>& y) {
 		__k.add_child(&x);
 		__k.add_child(&y);
 
-        __k.set_backward([&x, &y, &__k]() {
+        __k.set_backward([x, y, __k]() {
             auto dr = y.dataX().real() * y.dataX().real() + y.dataX().imag() * y.dataX().imag();
             x.add_grad(
                 (__k.get_grad().real() * y.dataX().real() + __k.get_grad().imag() * y.dataX().imag()) / dr,
@@ -908,7 +938,7 @@ operator/ (const Value<T>& x, const Value<T>& y) {
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() / y.dataX());
         y.add_grad(-__k.get_grad() * x.dataX() / (y.dataX() * y.dataX()));
     });
@@ -936,7 +966,7 @@ operator/ (const Value<T>& x, const Value<U>& y) {
 		__k.add_child(&x);
 		__k.add_child(&y);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
             auto dr = y.dataX().real() * y.dataX().real() + y.dataX().imag() * y.dataX().imag();
 			x.add_grad(
 				(__k.get_grad().real() * y.dataX().real() + __k.get_grad().imag() * y.dataX().imag()) / dr,
@@ -955,13 +985,12 @@ operator/ (const Value<T>& x, const Value<U>& y) {
         throw std::invalid_argument("Division by zero");
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k /= y;
+    Value<ResultType<T, U>> __k(x.dataX() / y.dataX());
 
     __k.add_child(&x);
     __k.add_child(&y);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() / y.dataX());
         y.add_grad(-__k.get_grad() * x.dataX() / (y.dataX() * y.dataX()));
     });
@@ -988,7 +1017,7 @@ operator/ (const Value<T>& x, const T& y) {
 
 		__k.add_child(&x);
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
             auto dr = y.real() * y.real() + y.imag() * y.imag();
 			x.add_grad(
 				(__k.get_grad().real() * y.real() + __k.get_grad().imag() * y.imag()) / dr,
@@ -1013,7 +1042,7 @@ operator/ (const Value<T>& x, const T& y) {
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() / y);
     });
 
@@ -1039,7 +1068,7 @@ operator/ (const Value<T>& x, const U& y) {
 
 		__k.add_child(static_cast<Value<ResultType<T, U>>*>(&x));
 
-		__k.set_backward([&x, &y, &__k]() {
+		__k.set_backward([x, y, __k]() {
             auto dr = y.real() * y.real() + y.imag() * y.imag();
 			x.add_grad(
 				(__k.get_grad().real() * y.real() + __k.get_grad().imag() * y.imag()) / dr,
@@ -1054,12 +1083,11 @@ operator/ (const Value<T>& x, const U& y) {
         throw std::invalid_argument("Division by zero");
     }
 
-    Value<ResultType<T, U>> __k = x;
-    __k /= y;
+    Value<ResultType<T, U>> __k(x.dataX() / y, x.dataY() / y);
 
     __k.add_child(&x);
 
-    __k.set_backward([&x, &y, &__k]() {
+    __k.set_backward([x, y, __k]() {
         x.add_grad(__k.get_grad() / y);
     });
 
@@ -1135,7 +1163,7 @@ operator-(const Value<T>& _x) {
 
         __k.add_child(&_x);
 
-        __k.set_backward([&_x, &__k]() {
+        __k.set_backward([_x, __k]() {
             _x.add_grad(-__k.get_grad());
         });
 
@@ -1145,7 +1173,7 @@ operator-(const Value<T>& _x) {
 
         __k.add_child(&_x);
 
-        __k.set_backward([&_x, &__k]() {
+        __k.set_backward([_x, __k]() {
             _x.add_grad(-__k.get_grad());
         });
 
@@ -2188,7 +2216,7 @@ pow(const Value<T>& _x, const Value<T>& _y) {
 	__k.add_child(&_x);
 	__k.add_child(&_y);
 
-	__k.set_backward([&_x, &_y, &__k]() {
+	__k.set_backward([_x, _y, __k]() {
 		_x.add_grad(__k.get_grad() * _y.dataX() * std::pow(_x.dataX(), _y.dataX() - 1));
 		_y.add_grad(__k.get_grad() * std::pow(_x.dataX(), _y.dataX()) * std::log(_x.dataX()));
 	});
@@ -2205,7 +2233,7 @@ pow(const Value<T>& _x, const T& _y) {
 
 	__k.add_child(&_x);
 
-	__k.set_backward([&_x, &_y, &__k]() {
+	__k.set_backward([_x, _y, __k]() {
 		_x.add_grad(__k.get_grad() * _y * std::pow(_x.dataX(), _y - 1));
 	});
 
@@ -2298,7 +2326,7 @@ neg(const Value<T>& _x) {
 
         __k.add_child(&_x);
 
-        __k.set_backward([&_x, &__k]() {
+        __k.set_backward([_x, __k]() {
             _x.add_grad(-__k.get_grad().real(), -__k.get_grad().imag());
         });
 
@@ -2308,7 +2336,7 @@ neg(const Value<T>& _x) {
 
         __k.add_child(&_x);
 
-        __k.set_backward([&_x, &__k]() {
+        __k.set_backward([_x, __k]() {
             _x.add_grad(-__k.get_grad());
         });
 
@@ -2541,24 +2569,45 @@ template <class T>
 inline
 Value <T>
 relu(const Value<T>& _x) {
-    Value<T> __k;
-    if (_x.dataX() < 0.0) {
-        __k = Value<T>(0.0);
+    if constexpr (is_complex_v<T>) {
+        using R = decltype(_x.dataX().real());
+        R re = _x.dataX().real();
+        R im = _x.dataX().imag();
+
+        Value<T> __k(T(re < R(0) ? R(0) : re, im < R(0) ? R(0) : im));
+
+        __k.add_child(&_x);
+
+        __k.set_backward([_x, __k]() {
+            using R = decltype(_x.dataX().real());
+            R re = _x.dataX().real();
+            R im = _x.dataX().imag();
+            auto g = __k.get_grad();
+            _x.add_grad(re < R(0) ? R(0) : g.real(),
+                        im < R(0) ? R(0) : g.imag());
+        });
+
+        return __k;
     } else {
-        __k = Value<T>(_x.dataX());
-    }
-
-    __k.add_child(&_x);
-
-    __k.set_backward([&_x, &__k]() {
+        Value<T> __k;
         if (_x.dataX() < 0.0) {
-            _x.add_grad(0.0);
+            __k = Value<T>(0.0);
         } else {
-            _x.add_grad(__k.get_grad());
+            __k = Value<T>(_x.dataX());
         }
-    });
 
-    return __k;
+        __k.add_child(&_x);
+
+        __k.set_backward([_x, __k]() {
+            if (_x.dataX() < 0.0) {
+                _x.add_grad(0.0);
+            } else {
+                _x.add_grad(__k.get_grad());
+            }
+        });
+
+        return __k;
+    }
 }
 
 template <class T>
